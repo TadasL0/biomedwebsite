@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical Device CAD Portfolio | SOLIDWORKS Specialist</title>
+  
+  <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .main-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      margin: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #4a90a4 0%, #357a8a 100%);
+      color: white;
+      padding: 2rem 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: shimmer 6s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { transform: translateX(-100%) translateY(-100%); }
+      50% { transform: translateX(0) translateY(0); }
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 300;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      opacity: 0.9;
+      margin-bottom: 1rem;
+    }
+
+    .hero-description {
+      font-size: 1.1rem;
+      opacity: 0.8;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+
+    .cta-button {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      border-radius: 50px;
+      display: inline-block;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cta-button:hover {
+      background: rgba(255, 255, 255, 0.9);
+      color: #4a90a4;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .portfolio-section {
+      padding: 4rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      color: #2c3e50;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .section-title::after {
+      content: '';
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(135deg, #4a90a4, #357a8a);
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 2px;
+    }
+
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 3rem;
+      margin-top: 3rem;
+    }
+
+    .device-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: all 0.4s ease;
+      border: 1px solid rgba(74, 144, 164, 0.1);
+    }
+
+    .device-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+
+    .device-image {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 300px;
+      position: relative;
+    }
+
+    .device-info {
+      padding: 2rem;
+    }
+
+    .device-info h3 {
+      color: #2c3e50;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .device-info p {
+      color: #6c757d;
+      margin-bottom: 1.5rem;
+      line-height: 1.7;
+    }
+
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .tech-tag {
+      background: linear-gradient(135deg, #4a90a4, #357a8a);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 10px rgba(74, 144, 164, 0.3);
+    }
+
+    .tech-tag:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(74, 144, 164, 0.4);
+    }
+
+    model-viewer {
+      width: 100%;
+      height: 350px;
+      border-radius: 15px;
+      --poster-color: transparent;
+    }
+
+    .fallback-placeholder {
+      width: 100%;
+      height: 350px;
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #4a90a4;
+      font-size: 1.1rem;
+      text-align: center;
+      border: 2px dashed #4a90a4;
+    }
+
+    .model-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
+
+    footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      margin-top: 2rem;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .contact-info {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 15px;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .contact-info h3 {
+      margin-bottom: 1rem;
+      color: #ecf0f1;
+    }
+
+    .contact-item {
+      margin: 0.5rem 0;
+      opacity: 0.9;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .main-container {
+        margin: 10px;
+        border-radius: 15px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .device-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .portfolio-section {
+        padding: 2rem 1rem;
+      }
+
+      .tech-tags {
+        gap: 0.5rem;
+      }
+
+      .tech-tag {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+      }
+    }
+
+    /* Loading Animation */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Assembly Controls Styling */
+    .assembly-controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .assembly-btn {
+      background: linear-gradient(135deg, #4a90a4, #357a8a);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 25px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(74, 144, 164, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .assembly-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(74, 144, 164, 0.4);
+      background: linear-gradient(135deg, #357a8a, #2d6b7a);
+    }
+
+    .assembly-btn:active {
+      transform: translateY(0);
+    }
+
+    .assembly-info {
+      background: rgba(74, 144, 164, 0.05);
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      border-left: 4px solid #4a90a4;
+    }
+
+    .assembly-info h4 {
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .assembly-info ul {
+      margin: 0;
+      padding-left: 1rem;
+      color: #6c757d;
+    }
+
+    .assembly-info li {
+      margin: 0.3rem 0;
+      font-size: 0.9rem;
+    }
+
+    /* Animation for exploded view */
+    .exploded {
+      animation: explodeEffect 0.8s ease-out;
+    }
+
+    @keyframes explodeEffect {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <header>
+      <div class="header-content">
+        <h1>Tadas Turonis</h1>
+        <div class="subtitle">Medical Engineering Student</div>
+        <p class="hero-description">SOLIDWORKS modeling and medical device design projects | Vilnius TECH</p>
+        <a href="#portfolio" class="cta-button">View My Work</a>
+      </div>
+    </header>
+
+    <main>
+      <section id="portfolio" class="portfolio-section">
+        <h2 class="section-title">Academic Projects & Learning Portfolio</h2>
+        <div class="device-grid">
+
+          <!-- Compression Bone Plate -->
+          <div class="device-card">
+            <div class="device-image">
+              <model-viewer 
+                src="compression_bone_plate.gltf" 
+                alt="Compression Bone Plate 3D Model" 
+                camera-controls 
+                auto-rotate 
+                auto-rotate-delay="3000"
+                rotation-per-second="30deg"
+                environment-image="neutral"
+                shadow-intensity="1"
+                exposure="1"
+                ar
+                ar-modes="webxr scene-viewer quick-look">
+                <div slot="poster" class="fallback-placeholder loading">
+                  <div class="model-icon">🦴</div>
+                  <div>Loading 3D Model...</div>
+                  <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">
+                    Compression Bone Plate
+                  </div>
+                </div>
+              </model-viewer>
+            </div>
+            <div class="device-info">
+              <h3>Locking Compression Plate System</h3>
+              <p>Advanced trauma fixation plate with combination holes for locking and compression screws. Features optimized geometry for bone contact and screw angulation options designed for orthopedic applications.</p>
+              <div class="tech-tags">
+                <span class="tech-tag">SOLIDWORKS</span>
+                <span class="tech-tag">Ti-6Al-4V</span>
+                <span class="tech-tag">Trauma Surgery</span>
+                <span class="tech-tag">FDA Class II</span>
+                <span class="tech-tag">3D Modeling</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medical Syringe with Assembly Features -->
+          <div class="device-card">
+            <div class="device-image">
+              <model-viewer 
+                src="syringe.gltf" 
+                alt="Medical Syringe 3D Model with Assembly" 
+                camera-controls 
+                auto-rotate 
+                auto-rotate-delay="4000"
+                rotation-per-second="20deg"
+                environment-image="neutral"
+                shadow-intensity="1"
+                exposure="1"
+                ar
+                ar-modes="webxr scene-viewer quick-look"
+                id="syringe-viewer">
+                <div slot="poster" class="fallback-placeholder loading">
+                  <div class="model-icon">💉</div>
+                  <div>Loading 3D Assembly...</div>
+                  <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">
+                    Medical Syringe Assembly
+                  </div>
+                </div>
+              </model-viewer>
+              <div class="assembly-controls">
+                <button class="assembly-btn" onclick="explodeAssembly('syringe-viewer')">🔧 Explode Assembly</button>
+                <button class="assembly-btn" onclick="resetAssembly('syringe-viewer')">🔄 Reset View</button>
+              </div>
+            </div>
+            <div class="device-info">
+              <h3>Medical Syringe Assembly</h3>
+              <p>Complete syringe assembly featuring vaccine body, plunger mechanism, needle attachment, and rubber seal components. Demonstrates multi-part assembly modeling and component interaction design for medical applications.</p>
+              <div class="assembly-info">
+                <h4>Assembly Components:</h4>
+                <ul>
+                  <li>• Vaccine Body (Main Barrel)</li>
+                  <li>• Vaccine Plunger (Injection Mechanism)</li>
+                  <li>• Needle Attachment Point</li>
+                  <li>• Rubber Seal (Plunger Tip)</li>
+                </ul>
+              </div>
+              <div class="tech-tags">
+                <span class="tech-tag">SOLIDWORKS Assembly</span>
+                <span class="tech-tag">Multi-Part Design</span>
+                <span class="tech-tag">Medical Device</span>
+                <span class="tech-tag">Component Integration</span>
+                <span class="tech-tag">3D Modeling</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medical Needle -->
+          <div class="device-card">
+            <div class="device-image">
+              <model-viewer 
+                src="needle.gltf" 
+                alt="Medical Needle 3D Model" 
+                camera-controls 
+                auto-rotate 
+                auto-rotate-delay="3000"
+                rotation-per-second="30deg"
+                environment-image="neutral"
+                shadow-intensity="1"
+                exposure="1"
+                ar
+                ar-modes="webxr scene-viewer quick-look">
+                <div slot="poster" class="fallback-placeholder loading">
+                  <div class="model-icon">🩹</div>
+                  <div>Loading 3D Model...</div>
+                  <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">
+                    Medical Needle
+                  </div>
+                </div>
+              </model-viewer>
+            </div>
+            <div class="device-info">
+              <h3>Precision Medical Needle</h3>
+              <p>Precision-engineered medical needle with ergonomic design for safe, accurate delivery. Modeled with attention to manufacturing constraints and clinical requirements for training and prototyping purposes.</p>
+              <div class="tech-tags">
+                <span class="tech-tag">SOLIDWORKS</span>
+                <span class="tech-tag">FEA Simulation</span>
+                <span class="tech-tag">Medical Device</span>
+                <span class="tech-tag">Precision Engineering</span>
+                <span class="tech-tag">CAD Design</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-content">
+        <div class="contact-info">
+          <h3>Contact Information</h3>
+          <div class="contact-item">📧 Email: Available upon request</div>
+          <div class="contact-item">🎓 Institution: Vilnius TECH</div>
+          <div class="contact-item">📍 Location: Vilnius, Lithuania</div>
+        </div>
+        <p>&copy; 2025 Tadas Turonis. Medical Engineering Student Portfolio - Vilnius TECH.</p>
+        <p style="opacity: 0.8; font-size: 0.9rem; margin-top: 1rem;">
+          Academic portfolio showcasing SOLIDWORKS expertise and medical device design projects.
+        </p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Enhanced model viewer functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const modelViewers = document.querySelectorAll('model-viewer');
+      
+      modelViewers.forEach(viewer => {
+        // Handle loading states
+        viewer.addEventListener('load', () => {
+          console.log('3D model loaded successfully');
+        });
+        
+        viewer.addEventListener('error', (event) => {
+          console.log('Error loading 3D model:', event.detail);
+          // You could add fallback content here if needed
+        });
+        
+        // Add interaction hints
+        viewer.addEventListener('camera-change', () => {
+          // Optional: Add analytics or interaction tracking
+        });
+      });
+      
+      // Smooth scrolling for navigation
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+    });
+
+    // Assembly interaction functions
+    function explodeAssembly(viewerId) {
+      const viewer = document.getElementById(viewerId);
+      if (viewer) {
+        // Add visual feedback
+        viewer.classList.add('exploded');
+        setTimeout(() => viewer.classList.remove('exploded'), 800);
+        
+        // Adjust camera for better exploded view
+        viewer.cameraOrbit = "45deg 75deg 2.5m";
+        viewer.fieldOfView = "30deg";
+        viewer.autoRotate = false;
+        
+        // You could add more sophisticated exploded view logic here
+        // For now, we're adjusting the viewing angle to show assembly better
+        console.log('Assembly exploded view activated');
+      }
+    }
+
+    function resetAssembly(viewerId) {
+      const viewer = document.getElementById(viewerId);
+      if (viewer) {
+        // Reset camera to default position
+        viewer.cameraOrbit = "0deg 75deg 105%";
+        viewer.fieldOfView = "auto";
+        viewer.autoRotate = true;
+        
+        console.log('Assembly view reset');
+      }
+    }
+
+    // Enhanced assembly visualization functions
+    function showComponentDetails(componentName) {
+      const details = {
+        'body': 'Main syringe barrel made from medical-grade plastic with graduated markings',
+        'plunger': 'Precision-machined plunger mechanism with rubber seal for smooth operation',
+        'needle': 'Stainless steel needle attachment point with luer-lock connection',
+        'seal': 'Medical-grade rubber seal ensuring sterile fluid containment'
+      };
+      
+      alert(`Component: ${componentName}\n${details[componentName] || 'Component details not available'}`);
+    }
+  </script>
+</body>
+</html>
