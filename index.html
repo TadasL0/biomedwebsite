@@ -610,6 +610,48 @@
             </div>
           </div>
 
+            <!-- Bioprosthetic Valve Model -->
+  <div class="device-card">
+    <div class="device-image">
+      <div class="model-container">
+        <div class="model-status" id="valve-status">Loading...</div>
+        <model-viewer
+          src="bioprosthetic_valve/valve.glb"
+          alt="Bioprosthetic Valve 3D Model"
+          camera-controls
+          auto-rotate
+          auto-rotate-delay="3500"
+          rotation-per-second="25deg"
+          environment-image="neutral"
+          shadow-intensity="1"
+          exposure="1"
+          ar
+          ar-modes="webxr scene-viewer quick-look"
+          id="valve-viewer">
+          <div slot="poster" class="fallback-placeholder loading">
+            <div class="model-icon">❤️</div>
+            <div>Loading 3D Model…</div>
+            <div style="font-size:0.9rem;opacity:0.7;margin-top:0.5rem;">
+              Bioprosthetic Valve
+            </div>
+          </div>
+        </model-viewer>
+      </div>
+    </div>
+    <div class="device-info">
+      <h3>Bioprosthetic Valve Model</h3>
+      <p>Bioprosthetic tricuspid valve with leaflet geometry optimized for unidirectional flow and minimal regurgitation.</p>
+      <div class="tech-tags">
+        <span class="tech-tag">SOLIDWORKS</span>
+        <span class="tech-tag">Valve Design</span>
+        <span class="tech-tag">Cardiology</span>
+        <span class="tech-tag">Hemodynamics</span>
+        <span class="tech-tag">3D Modeling</span>
+      </div>
+    </div>
+  </div>
+
+
         </div>
       </section>
     </main>
@@ -635,6 +677,7 @@
     const assemblyStates = {
       'syringe-viewer': { isExploded: false, originalSrc: './syringe/syringe.gltf' },
       'stent-viewer':   { isExploded: false, originalSrc: '/stent/tracheobronchial_stent.glb' }
+      'valve-viewer':   { isExploded: false, originalSrc: '/bioprosthetic_valve/valve.glb' }
     };
 
     // Enhanced model viewer functionality
