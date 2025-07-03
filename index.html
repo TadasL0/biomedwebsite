@@ -569,6 +569,47 @@
             </div>
           </div>
 
+          <!-- Tracheobronchial Stent Model -->
+          <div class="device-card">
+            <div class="device-image">
+              <div class="model-container">
+                <div class="model-status" id="stent-status">Loading...</div>
+                <model-viewer
+                  src="/stent/tracheobronchial_stent.glb"
+                  alt="Tracheobronchial Stent 3D Model"
+                  camera-controls
+                  auto-rotate
+                  auto-rotate-delay="3500"
+                  rotation-per-second="25deg"
+                  environment-image="neutral"
+                  shadow-intensity="1"
+                  exposure="1"
+                  ar
+                  ar-modes="webxr scene-viewer quick-look"
+                  id="stent-viewer">
+                  <div slot="poster" class="fallback-placeholder loading">
+                    <div class="model-icon">🫁</div>
+                    <div>Loading 3D Model...</div>
+                    <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">
+                      Tracheobronchial Stent
+                    </div>
+                  </div>
+                </model-viewer>
+              </div>
+            </div>
+            <div class="device-info">
+              <h3>Tracheobronchial Stent Model</h3>
+              <p>Self-expanding nitinol stent designed for tracheobronchial airway support. Modeled with detailed strut architecture for optimal radial force and flexibility.</p>
+              <div class="tech-tags">
+                <span class="tech-tag">SOLIDWORKS</span>
+                <span class="tech-tag">Nitinol</span>
+                <span class="tech-tag">Airway</span>
+                <span class="tech-tag">Minimally Invasive</span>
+                <span class="tech-tag">3D Modeling</span>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
     </main>
@@ -592,7 +633,8 @@
   <script>
     // State management for exploded views
     const assemblyStates = {
-      'syringe-viewer': { isExploded: false, originalSrc: './syringe/syringe.gltf' }
+      'syringe-viewer': { isExploded: false, originalSrc: './syringe/syringe.gltf' },
+      'stent-viewer':   { isExploded: false, originalSrc: '/stent/tracheobronchial_stent.glb' }
     };
 
     // Enhanced model viewer functionality
@@ -604,7 +646,6 @@
         
         // Handle loading states
         viewer.addEventListener('load', () => {
-          console.log('3D model loaded successfully:', viewer.id);
           if (statusElement) {
             statusElement.textContent = 'Model Loaded';
             statusElement.classList.add('loaded');
@@ -612,24 +653,17 @@
         });
         
         viewer.addEventListener('error', (event) => {
-          console.log('Error loading 3D model:', viewer.id, event.detail);
           if (statusElement) {
             statusElement.textContent = 'Load Error';
             statusElement.classList.add('error');
           }
         });
         
-        // Handle progress
         viewer.addEventListener('progress', (event) => {
           if (statusElement && event.detail.totalProgress < 1) {
             const progress = Math.round(event.detail.totalProgress * 100);
             statusElement.textContent = `Loading ${progress}%`;
           }
-        });
-        
-        // Add interaction hints
-        viewer.addEventListener('camera-change', () => {
-          // Optional: Add analytics or interaction tracking
         });
       });
       
@@ -639,16 +673,13 @@
           e.preventDefault();
           const target = document.querySelector(this.getAttribute('href'));
           if (target) {
-            target.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         });
       });
     });
 
-    // Enhanced assembly interaction functions
+    // Assembly interaction functions...
     function toggleExplodedView(viewerId) {
       const viewer = document.getElementById(viewerId);
       const button = document.getElementById(viewerId.replace('-viewer', '-explode-btn'));
@@ -657,47 +688,27 @@
       if (!viewer || !state) return;
       
       if (state.isExploded) {
-        // Return to assembled view
         viewer.src = state.originalSrc;
         viewer.classList.remove('exploded');
-        button.textContent = '🔧 Exploded View';
-        button.classList.remove('active');
+        if (button) { button.textContent = '🔧 Exploded View'; button.classList.remove('active'); }
         state.isExploded = false;
-        
-        // Reset camera
         viewer.cameraOrbit = "0deg 75deg 105%";
         viewer.fieldOfView = "auto";
         viewer.autoRotate = true;
-        
-        console.log('Assembly view restored');
       } else {
-        // Show exploded view
-        // Try to load exploded version if it exists
-        const explodedSrc = state.originalSrc.replace('.gltf', '_exploded.gltf');
-        
-        // Add visual feedback
+        const explodedSrc = state.originalSrc.replace('.gltf', '_exploded.gltf').replace('.glb','_exploded.glb');
         viewer.classList.add('exploded');
-        button.textContent = '🔧 Assembled View';
-        button.classList.add('active');
+        if (button) { button.textContent = '🔧 Assembled View'; button.classList.add('active'); }
         state.isExploded = true;
-        
-        // Adjust camera for better exploded view
         viewer.cameraOrbit = "45deg 75deg 2.5m";
         viewer.fieldOfView = "25deg";
         viewer.autoRotate = false;
-        
-        // Try to load exploded model, fallback to camera adjustment
-        const testSrc = viewer.src;
+        const fallbackSrc = viewer.src;
         viewer.src = explodedSrc;
-        
-        // If exploded model doesn't exist, just adjust view
-        viewer.addEventListener('error', function handleExplodedError() {
-          viewer.src = testSrc;
-          viewer.removeEventListener('error', handleExplodedError);
-          console.log('Exploded model not found, using camera view adjustment');
+        viewer.addEventListener('error', function once() {
+          viewer.src = fallbackSrc;
+          viewer.removeEventListener('error', once);
         }, { once: true });
-        
-        console.log('Exploded view activated');
       }
     }
 
@@ -705,124 +716,49 @@
       const viewer = document.getElementById(viewerId);
       const button = document.getElementById(viewerId.replace('-viewer', '-explode-btn'));
       const state = assemblyStates[viewerId];
-      
       if (viewer && state) {
-        // Reset to original model
         viewer.src = state.originalSrc;
         viewer.classList.remove('exploded');
-        
-        // Reset camera to default position
         viewer.cameraOrbit = "0deg 75deg 105%";
         viewer.fieldOfView = "auto";
         viewer.autoRotate = true;
-        
-        // Reset button state
-        if (button) {
-          button.textContent = '🔧 Exploded View';
-          button.classList.remove('active');
-        }
-        
-        // Reset state
+        if (button) { button.textContent = '🔧 Exploded View'; button.classList.remove('active'); }
         state.isExploded = false;
-        
-        console.log('Assembly view reset');
       }
     }
 
     function showAssemblyAnimation(viewerId) {
       const viewer = document.getElementById(viewerId);
       if (!viewer) return;
-      
-      // Simple animation sequence
       const originalOrbit = viewer.cameraOrbit;
       const originalFOV = viewer.fieldOfView;
-      const originalAutoRotate = viewer.autoRotate;
-      
+      const originalAuto = viewer.autoRotate;
       viewer.autoRotate = false;
-      
-      // Animation sequence
-      const animations = [
-        { orbit: "0deg 45deg 2m", fov: "20deg", duration: 1000 },
-        { orbit: "90deg 60deg 2.5m", fov: "25deg", duration: 1000 },
-        { orbit: "180deg 75deg 2m", fov: "20deg", duration: 1000 },
-        { orbit: "270deg 45deg 2.5m", fov: "25deg", duration: 1000 }
+      const seq = [
+        { orbit: "0deg 45deg 2m", fov:"20deg", dur:1000 },
+        { orbit: "90deg 60deg 2.5m", fov:"25deg", dur:1000 },
+        { orbit: "180deg 75deg 2m", fov:"20deg", dur:1000 },
+        { orbit: "270deg 45deg 2.5m", fov:"25deg", dur:1000 }
       ];
-      
-      let currentStep = 0;
-      
-      function runAnimation() {
-        if (currentStep < animations.length) {
-          const step = animations[currentStep];
-          viewer.cameraOrbit = step.orbit;
-          viewer.fieldOfView = step.fov;
-          
-          setTimeout(() => {
-            currentStep++;
-            runAnimation();
-          }, step.duration);
+      let i=0;
+      (function next(){
+        if(i<seq.length){
+          viewer.cameraOrbit=seq[i].orbit;
+          viewer.fieldOfView=seq[i].fov;
+          setTimeout(next,seq[i].dur);
+          i++;
         } else {
-          // Return to original state
-          viewer.cameraOrbit = originalOrbit;
-          viewer.fieldOfView = originalFOV;
-          viewer.autoRotate = originalAutoRotate;
+          viewer.cameraOrbit=originalOrbit;
+          viewer.fieldOfView=originalFOV;
+          viewer.autoRotate=originalAuto;
         }
-      }
-      
-      runAnimation();
-      console.log('Assembly animation started');
+      })();
     }
 
-    // Enhanced assembly visualization functions
-    function showComponentDetails(componentName) {
-      const details = {
-        'body': 'Main syringe barrel made from medical-grade plastic with graduated markings for precise measurement',
-        'plunger': 'Precision-machined plunger mechanism with rubber seal for smooth operation and sterile containment',
-        'needle': 'Stainless steel needle attachment point with luer-lock connection for secure needle mounting',
-        'seal': 'Medical-grade rubber seal ensuring sterile fluid containment and smooth plunger movement'
-      };
-      
-      const detail = details[componentName] || 'Component details not available';
-      
-      // Create a more elegant notification
-      const notification = document.createElement('div');
-      notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #4a90a4, #357a8a);
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        z-index: 1000;
-        max-width: 300px;
-        font-size: 0.9rem;
-        line-height: 1.4;
-      `;
-      
-      notification.innerHTML = `
-        <strong>Component: ${componentName.charAt(0).toUpperCase() + componentName.slice(1)}</strong><br>
-        ${detail}
-      `;
-      
-      document.body.appendChild(notification);
-      
-      // Remove notification after 5 seconds
-      setTimeout(() => {
-        notification.remove();
-      }, 5000);
-    }
-
-    // Add keyboard shortcuts for power users
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'e' && e.ctrlKey) {
-        e.preventDefault();
-        toggleExplodedView('syringe-viewer');
-      }
-      if (e.key === 'r' && e.ctrlKey) {
-        e.preventDefault();
-        resetAssembly('syringe-viewer');
-      }
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e){
+      if(e.ctrlKey && e.key==='e') { e.preventDefault(); toggleExplodedView('syringe-viewer'); }
+      if(e.ctrlKey && e.key==='r') { e.preventDefault(); resetAssembly('syringe-viewer'); }
     });
   </script>
 </body>
