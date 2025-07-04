@@ -426,14 +426,55 @@
         <h2 class="section-title">Academic Projects & Learning Portfolio</h2>
         <div class="device-grid">
 
-          <!-- Compression Bone Plate -->
+         <!-- Bioprosthetic Valve Model -->
+  <div class="device-card">
+    <div class="device-image">
+      <div class="model-container">
+        <div class="model-status" id="valve-status">Loading...</div>
+        <model-viewer
+          src="bioprosthetic_valve/valve.glb"
+          alt="Bioprosthetic Valve 3D Model"
+          camera-controls
+          auto-rotate
+          auto-rotate-delay="3500"
+          rotation-per-second="25deg"
+          environment-image="neutral"
+          shadow-intensity="1"
+          exposure="1"
+          ar
+          ar-modes="webxr scene-viewer quick-look"
+          id="valve-viewer">
+          <div slot="poster" class="fallback-placeholder loading">
+            <div class="model-icon">❤️</div>
+            <div>Loading 3D Model…</div>
+            <div style="font-size:0.9rem;opacity:0.7;margin-top:0.5rem;">
+              Bioprosthetic Valve
+            </div>
+          </div>
+        </model-viewer>
+      </div>
+    </div>
+    <div class="device-info">
+      <h3>Bioprosthetic Valve Model</h3>
+      <p>Bioprosthetic tricuspid valve with leaflet geometry optimized for unidirectional flow and minimal regurgitation.</p>
+      <div class="tech-tags">
+        <span class="tech-tag">SOLIDWORKS</span>
+        <span class="tech-tag">Valve Design</span>
+        <span class="tech-tag">Cardiology</span>
+        <span class="tech-tag">Hemodynamics</span>
+        <span class="tech-tag">3D Modeling</span>
+      </div>
+    </div>
+  </div>
+
+          <!-- Medical Needle -->
           <div class="device-card">
             <div class="device-image">
               <div class="model-container">
-                <div class="model-status" id="plate-status">Loading...</div>
+                <div class="model-status" id="needle-status">Loading...</div>
                 <model-viewer 
-                  src="./compression_bone_plate/compression_bone_plate.gltf" 
-                  alt="Compression Bone Plate 3D Model" 
+                  src="./needle/needle.gltf" 
+                  alt="Medical Needle 3D Model" 
                   camera-controls 
                   auto-rotate 
                   auto-rotate-delay="3000"
@@ -443,29 +484,30 @@
                   exposure="1"
                   ar
                   ar-modes="webxr scene-viewer quick-look"
-                  id="plate-viewer">
+                  id="needle-viewer">
                   <div slot="poster" class="fallback-placeholder loading">
-                    <div class="model-icon">🦴</div>
+                    <div class="model-icon">🩹</div>
                     <div>Loading 3D Model...</div>
                     <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">
-                      Compression Bone Plate
+                      Medical Needle
                     </div>
                   </div>
                 </model-viewer>
               </div>
             </div>
             <div class="device-info">
-              <h3>Locking Compression Plate System</h3>
-              <p>Advanced trauma fixation plate with combination holes for locking and compression screws. Features optimized geometry for bone contact and screw angulation options designed for orthopedic applications.</p>
+              <h3>Precision Medical Needle</h3>
+              <p>Precision-engineered medical needle with ergonomic design for safe, accurate delivery. Modeled with attention to manufacturing constraints and clinical requirements for training and prototyping purposes.</p>
               <div class="tech-tags">
                 <span class="tech-tag">SOLIDWORKS</span>
-                <span class="tech-tag">Ti-6Al-4V</span>
-                <span class="tech-tag">Trauma Surgery</span>
-                <span class="tech-tag">FDA Class II</span>
-                <span class="tech-tag">3D Modeling</span>
+                <span class="tech-tag">FEA Simulation</span>
+                <span class="tech-tag">Medical Device</span>
+                <span class="tech-tag">Precision Engineering</span>
+                <span class="tech-tag">CAD Design</span>
               </div>
             </div>
           </div>
+
 
           <!-- Medical Syringe with Assembly Features -->
           <div class="device-card">
@@ -528,47 +570,7 @@
             </div>
           </div>
 
-          <!-- Medical Needle -->
-          <div class="device-card">
-            <div class="device-image">
-              <div class="model-container">
-                <div class="model-status" id="needle-status">Loading...</div>
-                <model-viewer 
-                  src="./needle/needle.gltf" 
-                  alt="Medical Needle 3D Model" 
-                  camera-controls 
-                  auto-rotate 
-                  auto-rotate-delay="3000"
-                  rotation-per-second="30deg"
-                  environment-image="neutral"
-                  shadow-intensity="1"
-                  exposure="1"
-                  ar
-                  ar-modes="webxr scene-viewer quick-look"
-                  id="needle-viewer">
-                  <div slot="poster" class="fallback-placeholder loading">
-                    <div class="model-icon">🩹</div>
-                    <div>Loading 3D Model...</div>
-                    <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">
-                      Medical Needle
-                    </div>
-                  </div>
-                </model-viewer>
-              </div>
-            </div>
-            <div class="device-info">
-              <h3>Precision Medical Needle</h3>
-              <p>Precision-engineered medical needle with ergonomic design for safe, accurate delivery. Modeled with attention to manufacturing constraints and clinical requirements for training and prototyping purposes.</p>
-              <div class="tech-tags">
-                <span class="tech-tag">SOLIDWORKS</span>
-                <span class="tech-tag">FEA Simulation</span>
-                <span class="tech-tag">Medical Device</span>
-                <span class="tech-tag">Precision Engineering</span>
-                <span class="tech-tag">CAD Design</span>
-              </div>
-            </div>
-          </div>
-
+          
           <!-- Tracheobronchial Stent Model -->
           <div class="device-card">
             <div class="device-image">
@@ -610,46 +612,48 @@
             </div>
           </div>
 
-            <!-- Bioprosthetic Valve Model -->
-  <div class="device-card">
-    <div class="device-image">
-      <div class="model-container">
-        <div class="model-status" id="valve-status">Loading...</div>
-        <model-viewer
-          src="bioprosthetic_valve/valve.glb"
-          alt="Bioprosthetic Valve 3D Model"
-          camera-controls
-          auto-rotate
-          auto-rotate-delay="3500"
-          rotation-per-second="25deg"
-          environment-image="neutral"
-          shadow-intensity="1"
-          exposure="1"
-          ar
-          ar-modes="webxr scene-viewer quick-look"
-          id="valve-viewer">
-          <div slot="poster" class="fallback-placeholder loading">
-            <div class="model-icon">❤️</div>
-            <div>Loading 3D Model…</div>
-            <div style="font-size:0.9rem;opacity:0.7;margin-top:0.5rem;">
-              Bioprosthetic Valve
+           <!-- Compression Bone Plate -->
+          <div class="device-card">
+            <div class="device-image">
+              <div class="model-container">
+                <div class="model-status" id="plate-status">Loading...</div>
+                <model-viewer 
+                  src="./compression_bone_plate/compression_bone_plate.gltf" 
+                  alt="Compression Bone Plate 3D Model" 
+                  camera-controls 
+                  auto-rotate 
+                  auto-rotate-delay="3000"
+                  rotation-per-second="30deg"
+                  environment-image="neutral"
+                  shadow-intensity="1"
+                  exposure="1"
+                  ar
+                  ar-modes="webxr scene-viewer quick-look"
+                  id="plate-viewer">
+                  <div slot="poster" class="fallback-placeholder loading">
+                    <div class="model-icon">🦴</div>
+                    <div>Loading 3D Model...</div>
+                    <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">
+                      Compression Bone Plate
+                    </div>
+                  </div>
+                </model-viewer>
+              </div>
+            </div>
+            <div class="device-info">
+              <h3>Locking Compression Plate System</h3>
+              <p>Advanced trauma fixation plate with combination holes for locking and compression screws. Features optimized geometry for bone contact and screw angulation options designed for orthopedic applications.</p>
+              <div class="tech-tags">
+                <span class="tech-tag">SOLIDWORKS</span>
+                <span class="tech-tag">Ti-6Al-4V</span>
+                <span class="tech-tag">Trauma Surgery</span>
+                <span class="tech-tag">FDA Class II</span>
+                <span class="tech-tag">3D Modeling</span>
+              </div>
             </div>
           </div>
-        </model-viewer>
-      </div>
-    </div>
-    <div class="device-info">
-      <h3>Bioprosthetic Valve Model</h3>
-      <p>Bioprosthetic tricuspid valve with leaflet geometry optimized for unidirectional flow and minimal regurgitation.</p>
-      <div class="tech-tags">
-        <span class="tech-tag">SOLIDWORKS</span>
-        <span class="tech-tag">Valve Design</span>
-        <span class="tech-tag">Cardiology</span>
-        <span class="tech-tag">Hemodynamics</span>
-        <span class="tech-tag">3D Modeling</span>
-      </div>
-    </div>
-  </div>
+
+            
 
 
         </div>
