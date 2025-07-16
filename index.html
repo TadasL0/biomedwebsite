@@ -775,32 +775,44 @@
     }
 
     function showAssemblyAnimation(viewerId) {
-      const viewer = document.getElementById(viewerId);
-      if (!viewer) return;
-      const originalOrbit = viewer.cameraOrbit;
-      const originalFOV = viewer.fieldOfView;
-      const originalAuto = viewer.autoRotate;
-      viewer.autoRotate = false;
-      const seq = [
-        { orbit: "0deg 45deg 2m", fov:"20deg", dur:1000 },
-        { orbit: "90deg 60deg 2.5m", fov:"25deg", dur:1000 },
-        { orbit: "180deg 75deg 2m", fov:"20deg", dur:1000 },
-        { orbit: "270deg 45deg 2.5m", fov:"25deg", dur:1000 }
-      ];
-      let i=0;
-      (function next(){
-        if(i<seq.length){
-          viewer.cameraOrbit=seq[i].orbit;
-          viewer.fieldOfView=seq[i].fov;
-          setTimeout(next,seq[i].dur);
-          i++;
-        } else {
-          viewer.cameraOrbit=originalOrbit;
-          viewer.fieldOfView=originalFOV;
-          viewer.autoRotate=originalAuto;
-        }
-      })();
+  const viewer = document.getElementById(viewerId);
+  if (!viewer) return;
+
+  // save current camera state so we can restore it later
+  const original = {
+    orbit: viewer.cameraOrbit,
+    fov:   viewer.fieldOfView,
+    auto:  viewer.autoRotate
+  };
+
+  viewer.autoRotate = false;          // pause auto-rotate during the tour
+
+  const keyframes = [
+    { orbit: '0deg 45deg 2m',    fov: '20deg', dur: 1000 },
+    { orbit: '90deg 60deg 2.5m', fov: '25deg', dur: 1000 },
+    { orbit: '180deg 75deg 2m',  fov: '20deg', dur: 1000 },
+    { orbit: '270deg 45deg 2.5m',fov: '25deg', dur: 1000 }
+  ];
+
+  let step = 0;
+  (function next() {
+    if (step < keyframes.length) {
+      viewer.cameraOrbit  = keyframes[step].orbit;
+      viewer.fieldOfView  = keyframes[step].fov;
+      setTimeout(next, keyframes[step].dur);
+      step++;
+    } else {
+      // restore the original view and settings
+      viewer.cameraOrbit  = original.orbit;
+      viewer.fieldOfView  = original.fov;
+      viewer.autoRotate   = original.auto;
     }
+  })();
+}
+
+/* make the handler visible to inline onclick="showAssemblyAnimation(...)" */
+window.showAssemblyAnimation = showAssemblyAnimation;
+
 
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e){
