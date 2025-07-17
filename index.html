@@ -738,37 +738,58 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
     // Assembly interaction functions...
-    function toggleExplodedView(viewerId) {
-      const viewer = document.getElementById(viewerId);
-      const button = document.getElementById(viewerId.replace('-viewer', '-explode-btn'));
-      const state = assemblyStates[viewerId];
-      
-      if (!viewer || !state) return;
-      
-      if (state.isExploded) {
-        viewer.src = state.originalSrc;
-        viewer.classList.remove('exploded');
-        if (button) { button.textContent = '🔧 Exploded View'; button.classList.remove('active'); }
-        state.isExploded = false;
-        viewer.cameraOrbit = "0deg 75deg 105%";
-        viewer.fieldOfView = "auto";
-        viewer.autoRotate = true;
-      } else {
-        const explodedSrc = state.originalSrc.replace('.gltf', '_exploded.gltf').replace('.glb','_exploded.glb');
-        viewer.classList.add('exploded');
-        if (button) { button.textContent = '🔧 Assembled View'; button.classList.add('active'); }
-        state.isExploded = true;
-        viewer.cameraOrbit = "45deg 75deg 2.5m";
-        viewer.fieldOfView = "25deg";
-        viewer.autoRotate = false;
-        const fallbackSrc = viewer.src;
-        viewer.src = explodedSrc;
-        viewer.addEventListener('error', function once() {
-          viewer.src = fallbackSrc;
-          viewer.removeEventListener('error', once);
-        }, { once: true });
-      }
+   function toggleExplodedView(viewerId) {
+  const viewer = document.getElementById(viewerId);
+  const button = document.getElementById(viewerId.replace('-viewer', '-explode-btn'));
+  const state  = assemblyStates[viewerId];
+  if (!viewer || !state) return;
+
+  if (state.isExploded) {
+    /* ------- back to assembled -------- */
+    viewer.src         = state.originalSrc;
+    viewer.classList.remove('exploded');
+    state.isExploded   = false;
+
+    viewer.cameraOrbit = '0deg 75deg 105%';
+    viewer.fieldOfView = 'auto';
+    viewer.autoRotate  = true;
+
+    if (button) {
+      button.textContent = '🔧 Exploded View';
+      button.classList.remove('active');
     }
+  } else {
+    /* ------- go to exploded -------- */
+    const explodedSrc = state.explodedSrc ||     // <— prefer explicit path
+                        state.originalSrc
+                             .replace('.gltf','_exploded.gltf')
+                             .replace('.glb' , '_exploded.glb');
+
+    state.isExploded   = true;
+    viewer.classList.add('exploded');
+
+    viewer.cameraOrbit = '45deg 75deg 2.5m';
+    viewer.fieldOfView = '25deg';
+    viewer.autoRotate  = false;
+
+    if (button) {
+      button.textContent = '🔧 Assembled View';
+      button.classList.add('active');
+    }
+
+    /* try the exploded file, fall back if 404 */
+    const fallback = viewer.src;
+    viewer.src = explodedSrc;
+    viewer.addEventListener('error', function restore() {
+      viewer.src = fallback;
+      viewer.removeEventListener('error', restore);
+    }, { once: true });
+  }
+}
+
+/* expose to inline onclick */
+window.toggleExplodedView = toggleExplodedView;
+
 
     function resetAssembly(viewerId) {
       const viewer = document.getElementById(viewerId);
