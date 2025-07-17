@@ -679,7 +679,11 @@
   <script>
     // State management for exploded views
     const assemblyStates = {
-      'syringe-viewer': { isExploded: false, originalSrc: './syringe/syringe.gltf' },
+      'syringe-viewer': {
+    isExploded : false,
+    originalSrc: 'syringe/syringe.gltf',
+    explodedSrc: 'syringe/Syringe.glb'   // exact name & case
+    },
       'stent-viewer':   { isExploded: false, originalSrc: 'stent/tracheobronchial_stent.glb' },
       'valve-viewer':   { isExploded: false, originalSrc: 'bioprosthetic_valve/valve.glb' }
     };
