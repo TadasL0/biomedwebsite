@@ -110,13 +110,7 @@
         </div>
         <div class="help"><strong>Passage</strong> ≈ how many times we’ve split the culture. Higher passage = “older” cells → closer to <em>Hayflick’s limit</em> and instability.</div>
 
-        <div class="buttons" role="group" aria-label="presets">
-          <button data-preset="sweet">Sweet spot</button>
-          <button data-preset="senescence">No division</button>
-          <button data-preset="cancer">Cancer / overgrowth</button>
-          <button data-preset="reset">Reset</button>
-          <span class="pill" title="Presenter hint"><kbd>Tip</kbd> 2–8% O₂ · moderate GF · early passage</span>
-        </div>
+        <div class="help" role="note" aria-live="polite">Tip: 2–8% O₂ · moderate GF · early passage tends to keep the niche stable.</div>
       </section>
 
       <section class="card" aria-labelledby="outcomes">
@@ -220,22 +214,6 @@
     const qrImg = document.getElementById('qrImg');
     const copyBtn = document.getElementById('copyBtn');
 
-    const presets = {
-      sweet: { o2: 5.0, gf: 45, pass: 4 },
-      senescence: { o2: 0.8, gf: 8, pass: 13 },
-      cancer: { o2: 1.0, gf: 85, pass: 12 },
-      reset: { o2: 5.0, gf: 45, pass: 5 }
-    };
-
-    function setPreset(name){
-      const p = presets[name];
-      if(!p) return;
-      o2.value = p.o2;
-      gf.value = p.gf;
-      pass.value = p.pass;
-      update();
-    }
-
     // ---- Share/QR setup ----
     const runningLocal = ['localhost','127.0.0.1'].includes(window.location.hostname);
 
@@ -301,10 +279,6 @@
       }
       setTimeout(() => copyBtn.textContent = 'Copy link', 1200);
     });
-
-    document.querySelectorAll('button[data-preset]').forEach(btn=>
-      btn.addEventListener('click',()=>setPreset(btn.dataset.preset))
-    );
 
     [o2,gf,pass].forEach(el=>el.addEventListener('input', update));
 
@@ -404,6 +378,7 @@
     let intervalId = null;
     let driftState = [];
     let pendingAutoAdvance = null;
+    let pendingStart = null;
 
     function inSafeZone(){
       const o = +o2.value, g = +gf.value, p = +pass.value;
@@ -425,6 +400,7 @@
 
     function startChallenge(){
       if (ticking) return;
+      if (pendingStart){ clearTimeout(pendingStart); pendingStart = null; }
       if (pendingAutoAdvance){ clearTimeout(pendingAutoAdvance); pendingAutoAdvance = null; }
       ticking = true;
       pulseDot(true);
@@ -458,6 +434,7 @@
 
     function resetChallenge(){
       if (pendingAutoAdvance){ clearTimeout(pendingAutoAdvance); pendingAutoAdvance = null; }
+      if (pendingStart){ clearTimeout(pendingStart); pendingStart = null; }
       prepareLevel(1);
     }
 
@@ -474,6 +451,7 @@
 
     function prepareLevel(nextLevel){
       stopChallenge();
+      if (pendingStart){ clearTimeout(pendingStart); pendingStart = null; }
       acc = 0;
       level = Math.max(1, nextLevel);
       safeZone = computeSafeZone();
@@ -486,8 +464,17 @@
       levelLabel.textContent = level;
       bestLabel.textContent = bestLevel;
       startBtn.textContent = `Start level ${level}`;
-      statusNote.textContent = `Level ${level} armed. Starting conditions are randomized and drift ${driftMultiplier(level).toFixed(1)}× faster than baseline.`;
-      startBtn.disabled = false;
+      const driftFactor = driftMultiplier(level).toFixed(1);
+      if (level === 1){
+        statusNote.textContent = 'Level 1 armed. Click start when you are ready to stabilize the niche.';
+        startBtn.disabled = false;
+      } else {
+        statusNote.textContent = `Level ${level} armed. Volatility is ${driftFactor}× baseline. Auto-start in 2 seconds…`;
+        startBtn.disabled = false;
+        pendingStart = setTimeout(()=>{
+          startChallenge();
+        }, 2000);
+      }
     }
 
     function computeSafeZone(){
