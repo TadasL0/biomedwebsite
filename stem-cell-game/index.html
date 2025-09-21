@@ -57,7 +57,14 @@
     button{cursor:pointer;border:1px solid #24457d;background:linear-gradient(180deg,#152748,#101c36);color:#d6e4ff;padding:10px 14px;border-radius:12px;font-weight:700}
     button:hover{filter:brightness(1.1)}
     button.glow{box-shadow:0 0 18px rgba(138,180,255,.6);animation:glimmer 1.6s ease-in-out infinite}
-    @keyframes glimmer{0%,100%{box-shadow:0 0 12px rgba(138,180,255,.5)}50%{box-shadow:0 0 22px rgba(110,231,183,.8)} }
+    @keyframes glimmer{0%,100%{box-shadow:0 0 12px rgba(138,180,255,.5)}50%{box-shadow:0 0 22px rgba(110,231,183,.8)}}
+    #levelIntro{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transform:scale(.94);transition:opacity .4s ease,transform .5s ease;color:var(--text);z-index:40}
+    #levelIntro.active{opacity:1;transform:scale(1)}
+    #levelIntro .intro-bubble{background:rgba(20,31,52,.85);border:1px solid rgba(138,180,255,.5);border-radius:26px;padding:24px 32px;box-shadow:0 25px 60px rgba(6,12,26,.55);display:flex;align-items:center;gap:18px}
+    #levelIntro .cell{font-size:2.2rem;animation:float 1.8s ease-in-out infinite;filter:drop-shadow(0 8px 18px rgba(138,180,255,.4))}
+    #levelIntro .intro-text span{display:block;font-size:1.7rem;font-weight:800}
+    #levelIntro .intro-text small{display:block;font-size:0.95rem;color:var(--muted);margin-top:4px}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
     footer{margin-top:22px;color:#9bb4e8}
     .small{font-size:12px;color:#8aa7de}
@@ -151,7 +158,7 @@
           </ul>
           <div class="small" id="difficultyNote">Level 1: baseline drift speed with gentle fluctuations.</div>
           <div class="buttons">
-            <button id="startBtn">Start challenge</button>
+            <button id="startBtn">Start Level</button>
             <button id="resetBtn">Reset</button>
           </div>
         </div>
@@ -183,6 +190,17 @@
     </footer>
   </div>
 
+  <canvas id="confetti" class="confetti"></canvas>
+  <div id="levelIntro" aria-hidden="true">
+    <div class="intro-bubble">
+      <div class="cell" aria-hidden="true">🧫</div>
+      <div class="intro-text">
+        <span id="introLevel">Level 2</span>
+        <small id="introNote">1.4× drift volatility</small>
+      </div>
+    </div>
+  </div>
+
   <script>
     const o2 = document.getElementById('o2');
     const gf = document.getElementById('gf');
@@ -210,6 +228,9 @@
     const passRangeLabel = document.getElementById('passRangeLabel');
     const difficultyNote = document.getElementById('difficultyNote');
     const confetti = document.getElementById('confetti');
+    const introOverlay = document.getElementById('levelIntro');
+    const introLevelText = document.getElementById('introLevel');
+    const introNoteText = document.getElementById('introNote');
 
     // Share/QR elements
     const shareLink = document.getElementById('shareLink');
@@ -370,6 +391,7 @@
       pass: 1.2
     };
 
+    let introTimer = null;
     let level = 1;
     let bestLevel = 0;
     let goalSeconds = GOAL_SECONDS;
@@ -379,8 +401,7 @@
     let acc = 0;
     let intervalId = null;
     let driftState = [];
-    let pendingAutoAdvance = null;
-    let pendingStart = null;
+    let pendingTransition = null;
 
     function inSafeZone(){
       const o = +o2.value, g = +gf.value, p = +pass.value;
@@ -400,10 +421,17 @@
       liveDot.style.boxShadow = active ? '0 0 14px rgba(110,231,183,.7)' : '0 0 12px rgba(251,191,36,.6)';
     }
 
+    function clearTransition(){
+      if (pendingTransition){
+        clearTimeout(pendingTransition);
+        pendingTransition = null;
+      }
+      hideLevelIntro();
+    }
+
     function startChallenge(){
       if (ticking) return;
-      if (pendingStart){ clearTimeout(pendingStart); pendingStart = null; }
-      if (pendingAutoAdvance){ clearTimeout(pendingAutoAdvance); pendingAutoAdvance = null; }
+      clearTransition();
       ticking = true;
       pulseDot(true);
       startBtn.disabled = true;
@@ -436,8 +464,7 @@
     }
 
     function resetChallenge(){
-      if (pendingAutoAdvance){ clearTimeout(pendingAutoAdvance); pendingAutoAdvance = null; }
-      if (pendingStart){ clearTimeout(pendingStart); pendingStart = null; }
+      clearTransition();
       prepareLevel(1);
     }
 
@@ -451,14 +478,15 @@
       const preview = driftMultiplier(nextLevel).toFixed(1);
       statusNote.textContent = `✔ Level ${level} cleared! Preparing level ${nextLevel} (${preview}× drift volatility)…`;
       burstConfetti();
-      pendingAutoAdvance = setTimeout(()=>{
-        prepareLevel(nextLevel);
-      }, 1200);
+      showLevelIntro(nextLevel, preview);
+      pendingTransition = setTimeout(()=>{
+        prepareLevel(nextLevel, true);
+      }, 1400);
     }
 
-    function prepareLevel(nextLevel){
+    function prepareLevel(nextLevel, fromWin = false){
       stopChallenge();
-      if (pendingStart){ clearTimeout(pendingStart); pendingStart = null; }
+      clearTransition();
       acc = 0;
       level = Math.max(1, nextLevel);
       safeZone = computeSafeZone();
@@ -470,20 +498,18 @@
       challengeSummary.innerHTML = `Goal: keep sliders inside the <strong>safe self‑renewal zone</strong> for <strong>${goalSeconds.toFixed(1)} seconds</strong>.`;
       levelLabel.textContent = level;
       bestLabel.textContent = bestLevel;
-      startBtn.textContent = `Start level ${level}`;
+      startBtn.textContent = 'Start Level';
       const driftFactor = driftMultiplier(level).toFixed(1);
       if (level === 1){
-        statusNote.textContent = 'Level 1 armed. Click start when you are ready to stabilize the niche.';
+        statusNote.textContent = 'Level 1 ready. Click start when you are ready to stabilize the niche.';
         startBtn.classList.add('glow');
-        startBtn.disabled = false;
       } else {
-        statusNote.textContent = `Level ${level} armed. Volatility is ${driftFactor}× baseline. Auto-start in 1.2 seconds…`;
+        statusNote.textContent = fromWin
+          ? `Level ${level} ready. Drift volatility is ${driftFactor}× baseline. Press Start when ready.`
+          : `Level ${level} armed. Drift volatility is ${driftFactor}× baseline.`;
         startBtn.classList.remove('glow');
-        startBtn.disabled = false;
-        pendingStart = setTimeout(()=>{
-          startChallenge();
-        }, 1200);
       }
+      startBtn.disabled = false;
     }
 
     function computeSafeZone(){
@@ -512,6 +538,29 @@
       passRangeLabel.textContent = `P${Math.round(safeZone.pass.min)}–P${Math.round(safeZone.pass.max)}`;
       const driftScale = driftMultiplier(level).toFixed(1);
       difficultyNote.textContent = `Level ${level}: expect ${driftScale}× faster drift bursts than the intro level.`;
+    }
+
+    function showLevelIntro(nextLevel, preview){
+      if (!introOverlay) return;
+      introLevelText.textContent = `Level ${nextLevel}`;
+      introNoteText.textContent = `${preview}× drift volatility`;
+      introOverlay.classList.add('active');
+      if (introTimer){
+        clearTimeout(introTimer);
+      }
+      introTimer = setTimeout(()=>{
+        introOverlay.classList.remove('active');
+        introTimer = null;
+      }, 1100);
+    }
+
+    function hideLevelIntro(){
+      if (!introOverlay) return;
+      introOverlay.classList.remove('active');
+      if (introTimer){
+        clearTimeout(introTimer);
+        introTimer = null;
+      }
     }
 
     function randomizeSliders(){
@@ -599,9 +648,10 @@
     prepareLevel(1);
 
     // Tiny confetti without libraries
-    const ctx = confetti.getContext('2d');
+    const ctx = confetti ? confetti.getContext('2d') : null;
     let flakes = [];
     function burstConfetti(){
+      if (!confetti || !ctx) return;
       const W = confetti.width = innerWidth; const H = confetti.height = innerHeight;
       flakes = new Array(120).fill(0).map(()=>({
         x: Math.random()*W,
