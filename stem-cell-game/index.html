@@ -56,6 +56,8 @@
     .buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
     button{cursor:pointer;border:1px solid #24457d;background:linear-gradient(180deg,#152748,#101c36);color:#d6e4ff;padding:10px 14px;border-radius:12px;font-weight:700}
     button:hover{filter:brightness(1.1)}
+    button.glow{box-shadow:0 0 18px rgba(138,180,255,.6);animation:glimmer 1.6s ease-in-out infinite}
+    @keyframes glimmer{0%,100%{box-shadow:0 0 12px rgba(138,180,255,.5)}50%{box-shadow:0 0 22px rgba(110,231,183,.8)} }
 
     footer{margin-top:22px;color:#9bb4e8}
     .small{font-size:12px;color:#8aa7de}
@@ -347,7 +349,7 @@
 
     // ---------- Challenge logic ----------
     const GOAL_SECONDS = 5.0;       // survival time per level
-    const BASE_DRAIN_RATE = 0.7;    // progress lost per second while out of zone
+    const BASE_DRAIN_RATE = 0.55;   // progress lost per second while out of zone (easier level 1)
     const TICK_MS = 100;            // update interval
 
     const sliderSettings = {
@@ -405,6 +407,7 @@
       ticking = true;
       pulseDot(true);
       startBtn.disabled = true;
+      startBtn.classList.remove('glow');
       statusNote.textContent = `Level ${level} running… stabilize conditions for ${goalSeconds.toFixed(1)} seconds.`;
       initDrift();
       intervalId = setInterval(()=>{
@@ -467,13 +470,15 @@
       const driftFactor = driftMultiplier(level).toFixed(1);
       if (level === 1){
         statusNote.textContent = 'Level 1 armed. Click start when you are ready to stabilize the niche.';
+        startBtn.classList.add('glow');
         startBtn.disabled = false;
       } else {
-        statusNote.textContent = `Level ${level} armed. Volatility is ${driftFactor}× baseline. Auto-start in 2 seconds…`;
+        statusNote.textContent = `Level ${level} armed. Volatility is ${driftFactor}× baseline. Auto-start in 1.2 seconds…`;
+        startBtn.classList.remove('glow');
         startBtn.disabled = false;
         pendingStart = setTimeout(()=>{
           startChallenge();
-        }, 2000);
+        }, 1200);
       }
     }
 
@@ -557,9 +562,9 @@
 
     function applyDrift(dt){
       if (!driftState.length) return;
-      const flipBase = 0.07 + (level-1) * 0.035;
-      const burstBase = 0.08 + (level-1) * 0.045;
-      const jitterBase = 0.35 + (level-1) * 0.12;
+      const flipBase = 0.05 + (level-1) * 0.035;
+      const burstBase = 0.06 + (level-1) * 0.045;
+      const jitterBase = 0.25 + (level-1) * 0.12;
       driftState.forEach(state => {
         const cfg = sliderSettings[state.key];
         const flipChance = Math.min(0.5, flipBase);
