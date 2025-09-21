@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tune the Stem‑Cell Hotel – Interactive</title>
+  <style>
+    :root{
+      --bg:#0e1726;          /* deep navy */
+      --panel:#141f34;       /* card */
+      --soft:#1b2a46;        /* accents */
+      --text:#e6eefc;        /* main text */
+      --muted:#a9b7d9;       /* secondary */
+      --ok:#6ee7b7;          /* green */
+      --warn:#fbbf24;        /* amber */
+      --bad:#f87171;         /* red */
+      --brand:#8ab4ff;       /* blue */
+    }
+    html,body{height:100%}
+    body{
+      margin:0; font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text); background: radial-gradient(1200px 900px at 70% -10%, #173055 0%, var(--bg) 45%) no-repeat var(--bg);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:32px}
+    header{display:flex;gap:18px;align-items:center;margin-bottom:20px}
+    .logo{width:54px;height:54px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(165deg,#1e2f52,#0f1a30);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .logo svg{width:30px;height:30px;opacity:.95}
+    h1{font-weight:800;font-size:clamp(26px,4vw,40px);letter-spacing:.3px;margin:0}
+    .sub{color:var(--muted);margin-top:4px}
+
+    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:22px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+
+    .card{background:linear-gradient(180deg,var(--panel),#0f1a2b);border:1px solid #1e335a;box-shadow:0 10px 40px rgba(0,0,0,.35);border-radius:18px;padding:18px 18px 16px}
+    .card h2{margin:4px 0 10px;font-size:18px;letter-spacing:.3px;color:#cfe0ff}
+    .row{display:grid;grid-template-columns:160px 1fr 72px;align-items:center;gap:12px;margin:14px 0}
+    .label{font-weight:700;color:#d7e6ff}
+    input[type=range]{width:100%}
+    .val{font-variant-numeric:tabular-nums; color:#bcd0ff}
+
+    .pill{display:inline-grid;grid-auto-flow:column;gap:10px;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid #274679;background:linear-gradient(180deg,#14233f,#0f1b33);color:#cfe0ff;font-weight:600}
+    .pill kbd{font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace;padding:2px 6px;border-radius:6px;background:#0c162a;border:1px solid #223b6d;color:#9ac0ff}
+
+    .outcome{display:grid;gap:14px}
+    .badge{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;font-weight:800;letter-spacing:.3px;width:max-content}
+    .badge svg{width:18px;height:18px}
+
+    .ok{background:rgba(110,231,183,.12);border:1px solid rgba(110,231,183,.6);color:var(--ok)}
+    .warn{background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.6);color:var(--warn)}
+    .bad{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.6);color:var(--bad)}
+
+    .explain{color:var(--muted);line-height:1.6}
+    .meter{height:10px;border-radius:999px;background:#0d1830;border:1px solid #1e325a;overflow:hidden}
+    .bar{height:100%;background:linear-gradient(90deg,#1e40af,#60a5fa);width:0%}
+
+    .buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+    button{cursor:pointer;border:1px solid #24457d;background:linear-gradient(180deg,#152748,#101c36);color:#d6e4ff;padding:10px 14px;border-radius:12px;font-weight:700}
+    button:hover{filter:brightness(1.1)}
+
+    footer{margin-top:22px;color:#9bb4e8}
+    .small{font-size:12px;color:#8aa7de}
+    a{color:var(--brand)}
+      .help{font-size:13px;color:var(--muted);margin:-6px 0 8px 0}
+    .challenge-head{display:flex;align-items:center;gap:10px}
+    .challenge-head .dot{width:10px;height:10px;border-radius:999px;background:var(--warn);box-shadow:0 0 12px rgba(251,191,36,.6)}
+    .challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+    .goal{background:linear-gradient(180deg,#122243,#0f1b33);border:1px solid #254477;border-radius:12px;padding:10px}
+    .goal h3{margin:0 0 6px 0;font-size:14px;color:#d7e6ff}
+    .progress{height:12px;border-radius:999px;background:#0d1830;border:1px solid #1e325a;overflow:hidden}
+    .progress .pbar{height:100%;width:0%;background:linear-gradient(90deg,#34d399,#60a5fa)}
+    .confetti{position:fixed;inset:0;pointer-events:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo" aria-hidden="true">
+        <!-- Simple cell-ish logo -->
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="#86b3ff" stroke-width="1.8"/>
+          <circle cx="12" cy="12" r="4.5" stroke="#86b3ff" stroke-width="1.8"/>
+          <circle cx="14.8" cy="9.8" r="1.4" fill="#86b3ff"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Tune the <span style="color:#a8c8ff">Stem‑Cell Hotel</span></h1>
+        <div class="sub">You’re the niche. Move the sliders to set conditions and see the outcome in real time.</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card" aria-labelledby="controls">
+        <h2 id="controls">Controls</h2>
+        <div class="row">
+          <div class="label">Oxygen (O₂)</div>
+          <input id="o2" type="range" min="0.5" max="21" value="5" step="0.1" aria-label="oxygen percentage" />
+          <div class="val"><span id="o2Val">5.0</span>%</div>
+        </div>
+        <div class="help">Most stem cells prefer <strong>low oxygen</strong> (about <strong>2–8%</strong>) called “physiologic hypoxia.” Too low = stress/no division; too high = oxidative stress.</div>
+        <div class="row">
+          <div class="label">Growth factors dose</div>
+          <input id="gf" type="range" min="0" max="100" value="45" step="1" aria-label="growth factor dose" />
+          <div class="val"><span id="gfVal">45</span>%</div>
+        </div>
+        <div class="help"><strong>Growth factors</strong> are protein “instructions.” Too little = cells idle; too much (especially in older cultures) = pushes risky overgrowth.</div>
+        <div class="row">
+          <div class="label">Passage number</div>
+          <input id="pass" type="range" min="1" max="20" value="5" step="1" aria-label="passage number" />
+          <div class="val">P<span id="passVal">5</span></div>
+        </div>
+        <div class="help"><strong>Passage</strong> ≈ how many times we’ve split the culture. Higher passage = “older” cells → closer to <em>Hayflick’s limit</em> and instability.</div>
+
+        <div class="buttons" role="group" aria-label="presets">
+          <button data-preset="sweet">Sweet spot</button>
+          <button data-preset="senescence">No division</button>
+          <button data-preset="cancer">Cancer / overgrowth</button>
+          <button data-preset="reset">Reset</button>
+          <span class="pill" title="Presenter hint"><kbd>Tip</kbd> 2–8% O₂ · moderate GF · early passage</span>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="outcomes">
+        <h2 id="outcomes">Outcome</h2>
+        <div class="outcome">
+          <div id="badge" class="badge ok">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+            <span id="badgeText">Controlled self‑renewal / poised to differentiate</span>
+          </div>
+          <div class="explain" id="explain">O₂ within physiologic hypoxia, moderate growth signals, and early passage support healthy stem‑cell behavior.</div>
+          <div class="meter" aria-hidden="true"><div class="bar" id="riskBar"></div></div>
+          <div class="small">Risk meter: left = stable • right = instability risk</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Challenge card -->
+    <section class="card" aria-labelledby="challenge">
+      <h2 id="challenge">Challenge: Hit the Safe Zone for a Reward</h2>
+      <div class="challenge-head"><span class="dot" id="liveDot"></span><div class="small">Goal: keep sliders inside the <strong>safe self‑renewal zone</strong> for <strong>5 seconds</strong>.</div></div>
+      <div class="challenge-grid">
+        <div class="goal">
+          <h3>Target ranges (non‑technical)</h3>
+          <ul class="small">
+            <li>O₂: <strong>2–8%</strong> (healthy “low‑oxygen” zone)</li>
+            <li>Growth factors: <strong>30–60%</strong> (not starved, not overdriven)</li>
+            <li>Passage: <strong>P1–P6</strong> (early culture)</li>
+          </ul>
+          <div class="buttons">
+            <button id="startBtn">Start challenge</button>
+            <button id="resetBtn">Reset</button>
+          </div>
+        </div>
+        <div class="goal">
+          <h3>Progress</h3>
+          <div class="progress" aria-label="challenge progress"><div class="pbar" id="pbar"></div></div>
+          <div class="small" id="ptime">0.0 / 5.0 s in-zone</div>
+          <div class="small" id="statusNote">Adjust sliders to enter the safe zone. Leaving the zone slowly drains progress.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Share via QR -->
+    <section class="card" aria-labelledby="share">
+      <h2 id="share">Share to phones (QR)</h2>
+      <div class="small">Point your camera at the QR to open this page on your phone. If you host it elsewhere, paste the new link below and the QR will update.</div>
+      <div class="row" style="grid-template-columns:1fr auto;align-items:start">
+        <input id="shareLink" type="text" value="" style="width:100%;padding:10px;border-radius:10px;border:1px solid #24457d;background:#0f1b33;color:#e6eefc"/>
+        <button id="copyBtn" title="Copy link">Copy link</button>
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;margin-top:10px">
+        <img id="qrImg" alt="QR code" style="width:140px;height:140px;border-radius:12px;border:1px solid #24457d;background:#0f1b33"/>
+        <div class="small">Tip: show this slide full‑screen. If students can’t open it, make sure you’re all on the same Wi‑Fi or host it on the public internet.</div>
+      </div>
+    </section>
+
+    <footer class="small">
+      Use it live (browser) or drop a link/QR in your slides. Heuristics are illustrative, not clinical.
+    </footer>
+  </div>
+
+  <script>
+    const o2 = document.getElementById('o2');
+    const gf = document.getElementById('gf');
+    const pass = document.getElementById('pass');
+    const o2Val = document.getElementById('o2Val');
+    const gfVal = document.getElementById('gfVal');
+    const passVal = document.getElementById('passVal');
+    const badge = document.getElementById('badge');
+    const badgeText = document.getElementById('badgeText');
+    const explain = document.getElementById('explain');
+    const riskBar = document.getElementById('riskBar');
+
+    // Challenge elements
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const pbar = document.getElementById('pbar');
+    const ptime = document.getElementById('ptime');
+    const statusNote = document.getElementById('statusNote');
+    const liveDot = document.getElementById('liveDot');
+    const confetti = document.getElementById('confetti');
+
+    // Share/QR elements
+    const shareLink = document.getElementById('shareLink');
+    const qrImg = document.getElementById('qrImg');
+    const copyBtn = document.getElementById('copyBtn');
+
+    const presets = {
+      sweet: { o2: 5.0, gf: 45, pass: 4 },
+      senescence: { o2: 0.8, gf: 8, pass: 13 },
+      cancer: { o2: 1.0, gf: 85, pass: 12 },
+      reset: { o2: 5.0, gf: 45, pass: 5 }
+    };
+
+    function setPreset(name){
+      const p = presets[name];
+      if(!p) return;
+      o2.value = p.o2;
+      gf.value = p.gf;
+      pass.value = p.pass;
+      update();
+    }
+
+    // ---- Share/QR setup ----
+    const runningLocal = ['localhost','127.0.0.1'].includes(window.location.hostname);
+
+    function setQR(url){
+      if(!url) return;
+      shareLink.value = url;
+
+      const remoteSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=' + encodeURIComponent(url);
+
+      if (runningLocal) {
+        const localSrc = 'share-qr.png?v=' + Date.now();
+        const restoreFallback = () => {
+          qrImg.onerror = null;
+          qrImg.src = remoteSrc;
+        };
+        qrImg.onerror = restoreFallback;
+        qrImg.src = localSrc;
+      } else {
+        qrImg.onerror = null;
+        qrImg.src = remoteSrc;
+      }
+      qrImg.alt = 'QR code for ' + url;
+    }
+
+    (async function initShare(){
+      let initial = '';
+      if (runningLocal) {
+        try {
+          const res = await fetch('share-url.txt?v=' + Date.now());
+          if (res.ok) {
+            initial = (await res.text()).trim();
+          }
+        } catch (err) {
+          console.warn('Share URL fetch failed', err);
+        }
+      }
+      if (!initial) {
+        initial = window.location.href;
+      }
+      setQR(initial);
+    })();
+
+    shareLink.addEventListener('input', () => {
+      const val = shareLink.value.trim();
+      if(!val) return;
+      setQR(val);
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const val = shareLink.value.trim();
+      if(!val) return;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(val);
+        } else {
+          shareLink.select();
+          document.execCommand('copy');
+        }
+        copyBtn.textContent = 'Copied!';
+      } catch (err) {
+        console.warn('Copy failed', err);
+        copyBtn.textContent = 'Copy failed';
+      }
+      setTimeout(() => copyBtn.textContent = 'Copy link', 1200);
+    });
+
+    document.querySelectorAll('button[data-preset]').forEach(btn=>
+      btn.addEventListener('click',()=>setPreset(btn.dataset.preset))
+    );
+
+    [o2,gf,pass].forEach(el=>el.addEventListener('input', update));
+
+    function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+
+    function update(){
+      o2Val.textContent = (+o2.value).toFixed(1);
+      gfVal.textContent = Math.round(+gf.value);
+      passVal.textContent = Math.round(+pass.value);
+
+      const o = +o2.value,
+            g = +gf.value,
+            p = +pass.value;
+
+      // Heuristic scoring (illustrative):
+      // base risk from culture age
+      let risk = 0;
+      risk += (p-1) * 3; // later passages accumulate risk
+
+      // oxygen outside physiologic hypoxia (2–8%) adds risk
+      if (o < 2) risk += (2 - o) * 10; // too low
+      if (o > 8) risk += (o - 8) * 3;   // too high
+
+      // very high growth factor drive, especially at late passage, raises risk
+      if (g > 70) risk += (g - 70) * (p >= 8 ? 2.4 : 1.4);
+      if (g < 15) risk += (15 - g) * 2; // too little signaling → quiescence/senescence tendency
+
+      // Bound and map risk to 0–100
+      risk = clamp(risk, 0, 100);
+      riskBar.style.width = risk + '%';
+
+      // Determine qualitative outcome buckets
+      const inSweetO2 = (o >= 2 && o <= 8);
+      const early = p <= 6;
+
+      let state, tone, msg, note;
+
+      if ((p >= 12) || (g <= 8 && o < 2)){
+        state = 'No division / senescence';
+        tone = 'warn';
+        msg = 'No division / senescence';
+        note = "Very late passage or starved signals push cells toward Hayflick’s limit and quiescence.";
+      } else if ((g >= 80 && p >= 8) || (g >= 90) || (o < 1.2 && g >= 60)){
+        state = 'Cancer / overgrowth risk';
+        tone = 'bad';
+        msg = 'Cancer / overgrowth risk';
+        note = 'Strong mitogenic drive plus late passage/low oxygen raises instability risk. Tight GMP/QC needed.';
+      } else if (inSweetO2 && early && g >= 30 && g <= 60){
+        state = 'Controlled self‑renewal';
+        tone = 'ok';
+        msg = 'Controlled self‑renewal / poised to differentiate';
+        note = 'Physiologic hypoxia (2–8% O₂), moderate growth signals and early passage support healthy behavior.';
+      } else {
+        state = 'Differentiation window';
+        tone = 'ok';
+        msg = 'Guided differentiation window';
+        note = 'Conditions favor differentiation with manageable risk. Adjust timing/signals to target a lineage.';
+      }
+
+      badge.className = 'badge ' + tone;
+      badgeText.textContent = msg;
+      explain.textContent = note;
+    }
+
+    update();
+
+    // ---------- Challenge logic ----------
+    const GOAL_SECONDS = 5.0;       // time to keep conditions in zone
+    const DRAIN_RATE = 0.7;         // seconds per real second lost when out of zone
+    const TICK_MS = 100;            // update interval
+    let ticking = false, acc = 0;   // accumulated in-zone time
+    let intervalId = null;
+
+    function inSafeZone(){
+      const o = +o2.value, g = +gf.value, p = +pass.value;
+      return (o >= 2 && o <= 8) && (g >= 30 && g <= 60) && (p >= 1 && p <= 6);
+    }
+
+    function setPbar(sec){
+      const pct = Math.max(0, Math.min(100, (sec/GOAL_SECONDS)*100));
+      pbar.style.width = pct + '%';
+      ptime.textContent = sec.toFixed(1) + ' / ' + GOAL_SECONDS.toFixed(1) + ' s in-zone';
+    }
+
+    function pulseDot(active){
+      liveDot.style.background = active ? 'var(--ok)' : 'var(--warn)';
+      liveDot.style.boxShadow = active ? '0 0 14px rgba(110,231,183,.7)' : '0 0 12px rgba(251,191,36,.6)';
+    }
+
+    function startChallenge(){
+      if (ticking) return;
+      ticking = true; pulseDot(true);
+      statusNote.textContent = 'Challenge running… keep it in the safe zone!';
+      intervalId = setInterval(()=>{
+        if (inSafeZone()){
+          acc += TICK_MS/1000;
+        } else {
+          acc -= DRAIN_RATE*(TICK_MS/1000);
+        }
+        acc = Math.max(0, Math.min(GOAL_SECONDS, acc));
+        setPbar(acc);
+        if (acc >= GOAL_SECONDS){
+          win();
+        }
+      }, TICK_MS);
+    }
+
+    function stopChallenge(){
+      ticking = false; pulseDot(false);
+      if (intervalId){ clearInterval(intervalId); intervalId = null; }
+    }
+
+    function resetChallenge(){
+      stopChallenge(); acc = 0; setPbar(acc);
+      statusNote.textContent = 'Adjust sliders to enter the safe zone. Leaving the zone slowly drains progress.';
+    }
+
+    function win(){
+      stopChallenge();
+      statusNote.textContent = '✔ Success! You kept conditions stable for 5 s — reward unlocked!';
+      burstConfetti();
+    }
+
+    startBtn.addEventListener('click', startChallenge);
+    resetBtn.addEventListener('click', resetChallenge);
+
+    // Tiny confetti without libraries
+    const ctx = confetti.getContext('2d');
+    let flakes = [];
+    function burstConfetti(){
+      const W = confetti.width = innerWidth; const H = confetti.height = innerHeight;
+      flakes = new Array(120).fill(0).map(()=>({
+        x: Math.random()*W,
+        y: -20 - Math.random()*H*0.3,
+        s: 4+Math.random()*6,
+        vx: -1+Math.random()*2,
+        vy: 1+Math.random()*2.5,
+        c: ['#6ee7b7','#8ab4ff','#fbbf24','#f87171'][Math.floor(Math.random()*4)]
+      }));
+      let t = 0;
+      function anim(){
+        ctx.clearRect(0,0,confetti.width,confetti.height);
+        flakes.forEach(f=>{
+          ctx.fillStyle = f.c;
+          ctx.fillRect(f.x, f.y, f.s, f.s);
+          f.x += f.vx; f.y += f.vy; f.vy += 0.02; // gravity
+          if (f.y > innerHeight + 20) f.y = -20;
+        });
+        if (t++ < 250) requestAnimationFrame(anim);
+      }
+      anim();
+    }
+  </script>
+</body>
+</html>
