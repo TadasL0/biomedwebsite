@@ -105,19 +105,19 @@
           <input id="o2" type="range" min="0.5" max="21" value="5" step="0.1" aria-label="oxygen percentage" />
           <div class="val"><span id="o2Val">5.0</span>%</div>
         </div>
-        <div class="help">Most stem cells prefer <strong>low oxygen</strong> (about <strong>2–8%</strong>) called “physiologic hypoxia.” Too low = stress/no division; too high = oxidative stress.</div>
+        <div class="help">Most stem cells prefer <strong>low oxygen</strong> (about <strong>2–8%</strong>) — the physiologic “sweet spot.”</div>
         <div class="row">
           <div class="label">Growth factors dose</div>
           <input id="gf" type="range" min="0" max="100" value="45" step="1" aria-label="growth factor dose" />
           <div class="val"><span id="gfVal">45</span>%</div>
         </div>
-        <div class="help"><strong>Growth factors</strong> are protein “instructions.” Too little = cells idle; too much (especially in older cultures) = pushes risky overgrowth.</div>
+        <div class="help"><strong>Growth factors</strong> are the “go” signals — moderate dosing keeps expansion under control.</div>
         <div class="row">
           <div class="label">Passage number</div>
           <input id="pass" type="range" min="1" max="20" value="5" step="1" aria-label="passage number" />
           <div class="val">P<span id="passVal">5</span></div>
         </div>
-        <div class="help"><strong>Passage</strong> ≈ how many times we’ve split the culture. Higher passage = “older” cells → closer to <em>Hayflick’s limit</em> and instability.</div>
+        <div class="help"><strong>Passage</strong> counts how often we’ve split the culture — later passages edge toward <em>Hayflick’s limit</em> and instability.</div>
 
         <div class="help" role="note" aria-live="polite">Tip: 2–8% O₂ · moderate GF · early passage tends to keep the niche stable.</div>
       </section>
@@ -650,6 +650,7 @@
     // Tiny confetti without libraries
     const ctx = confetti ? confetti.getContext('2d') : null;
     let flakes = [];
+    let confettiFrame = null;
     function burstConfetti(){
       if (!confetti || !ctx) return;
       const W = confetti.width = innerWidth; const H = confetti.height = innerHeight;
@@ -670,7 +671,17 @@
           f.x += f.vx; f.y += f.vy; f.vy += 0.02; // gravity
           if (f.y > innerHeight + 20) f.y = -20;
         });
-        if (t++ < 250) requestAnimationFrame(anim);
+        if (t++ < 220){
+          confettiFrame = requestAnimationFrame(anim);
+        } else {
+          flakes = [];
+          ctx.clearRect(0,0,confetti.width,confetti.height);
+          confettiFrame = null;
+        }
+      }
+      if (confettiFrame){
+        cancelAnimationFrame(confettiFrame);
+        confettiFrame = null;
       }
       anim();
     }
