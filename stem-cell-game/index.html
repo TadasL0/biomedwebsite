@@ -137,16 +137,23 @@
 
     <!-- Challenge card -->
     <section class="card" aria-labelledby="challenge">
-      <h2 id="challenge">Challenge: Hit the Safe Zone for a Reward</h2>
-      <div class="challenge-head"><span class="dot" id="liveDot"></span><div class="small">Goal: keep sliders inside the <strong>safe self‑renewal zone</strong> for <strong>5 seconds</strong>.</div></div>
+      <h2 id="challenge">Challenge: Niche Survival Levels</h2>
+      <div class="challenge-head">
+        <span class="dot" id="liveDot"></span>
+        <div class="small">
+          <div>Level <strong id="levelLabel">1</strong> · Best streak <span id="bestLabel">0</span></div>
+          <div id="challengeSummary">Goal: keep sliders inside the <strong>safe self‑renewal zone</strong> for <strong>5 seconds</strong>.</div>
+        </div>
+      </div>
       <div class="challenge-grid">
         <div class="goal">
           <h3>Target ranges (non‑technical)</h3>
           <ul class="small">
-            <li>O₂: <strong>2–8%</strong> (healthy “low‑oxygen” zone)</li>
-            <li>Growth factors: <strong>30–60%</strong> (not starved, not overdriven)</li>
-            <li>Passage: <strong>P1–P6</strong> (early culture)</li>
+            <li>O₂: <strong id="o2RangeLabel">2–8%</strong> (healthy “low‑oxygen” zone)</li>
+            <li>Growth factors: <strong id="gfRangeLabel">30–60%</strong> (not starved, not overdriven)</li>
+            <li>Passage: <strong id="passRangeLabel">P1–P6</strong> (early culture)</li>
           </ul>
+          <div class="small" id="difficultyNote">Level 1: baseline safe zone and stable drift.</div>
           <div class="buttons">
             <button id="startBtn">Start challenge</button>
             <button id="resetBtn">Reset</button>
@@ -199,6 +206,13 @@
     const ptime = document.getElementById('ptime');
     const statusNote = document.getElementById('statusNote');
     const liveDot = document.getElementById('liveDot');
+    const levelLabel = document.getElementById('levelLabel');
+    const bestLabel = document.getElementById('bestLabel');
+    const challengeSummary = document.getElementById('challengeSummary');
+    const o2RangeLabel = document.getElementById('o2RangeLabel');
+    const gfRangeLabel = document.getElementById('gfRangeLabel');
+    const passRangeLabel = document.getElementById('passRangeLabel');
+    const difficultyNote = document.getElementById('difficultyNote');
     const confetti = document.getElementById('confetti');
 
     // Share/QR elements
@@ -358,21 +372,52 @@
     update();
 
     // ---------- Challenge logic ----------
-    const GOAL_SECONDS = 5.0;       // time to keep conditions in zone
-    const DRAIN_RATE = 0.7;         // seconds per real second lost when out of zone
+    const BASE_GOAL_SECONDS = 5.0;  // seconds to survive on level 1
+    const GOAL_INCREMENT = 0.5;     // how much longer each level lasts
+    const BASE_DRAIN_RATE = 0.7;    // progress lost per second while out of zone (level 1)
+    const DRAIN_INCREMENT = 0.18;   // additional drain per level
     const TICK_MS = 100;            // update interval
-    let ticking = false, acc = 0;   // accumulated in-zone time
+
+    const sliderSettings = {
+      o2: { el: o2, min: parseFloat(o2.min), max: parseFloat(o2.max), step: parseFloat(o2.step), unit: '%', decimals: 1 },
+      gf: { el: gf, min: parseFloat(gf.min), max: parseFloat(gf.max), step: parseFloat(gf.step), unit: '%', decimals: 0 },
+      pass: { el: pass, min: parseFloat(pass.min), max: parseFloat(pass.max), step: parseFloat(pass.step), unit: '', decimals: 0, prefix: 'P' }
+    };
+
+    const baseSafe = {
+      o2: { center: 5, half: 3 },
+      gf: { center: 45, half: 15 },
+      pass: { center: 3.5, half: 2.5 }
+    };
+
+    const driftBase = {
+      o2: 0.6,
+      gf: 5,
+      pass: 1.2
+    };
+
+    let level = 1;
+    let bestLevel = 0;
+    let goalSeconds = BASE_GOAL_SECONDS;
+    let drainRate = BASE_DRAIN_RATE;
+    let safeZone = computeSafeZone(level);
+    let ticking = false;
+    let acc = 0;
     let intervalId = null;
+    let driftState = [];
+    let pendingAutoAdvance = null;
 
     function inSafeZone(){
       const o = +o2.value, g = +gf.value, p = +pass.value;
-      return (o >= 2 && o <= 8) && (g >= 30 && g <= 60) && (p >= 1 && p <= 6);
+      return (o >= safeZone.o2.min && o <= safeZone.o2.max) &&
+             (g >= safeZone.gf.min && g <= safeZone.gf.max) &&
+             (p >= safeZone.pass.min && p <= safeZone.pass.max);
     }
 
     function setPbar(sec){
-      const pct = Math.max(0, Math.min(100, (sec/GOAL_SECONDS)*100));
+      const pct = Math.max(0, Math.min(100, (sec/goalSeconds)*100));
       pbar.style.width = pct + '%';
-      ptime.textContent = sec.toFixed(1) + ' / ' + GOAL_SECONDS.toFixed(1) + ' s in-zone';
+      ptime.textContent = sec.toFixed(1) + ' / ' + goalSeconds.toFixed(1) + ' s in-zone';
     }
 
     function pulseDot(active){
@@ -382,40 +427,177 @@
 
     function startChallenge(){
       if (ticking) return;
-      ticking = true; pulseDot(true);
-      statusNote.textContent = 'Challenge running… keep it in the safe zone!';
+      if (pendingAutoAdvance){ clearTimeout(pendingAutoAdvance); pendingAutoAdvance = null; }
+      ticking = true;
+      pulseDot(true);
+      startBtn.disabled = true;
+      statusNote.textContent = `Level ${level} running… stabilize conditions for ${goalSeconds.toFixed(1)} seconds.`;
+      initDrift();
       intervalId = setInterval(()=>{
+        const dt = TICK_MS/1000;
+        applyDrift(dt);
         if (inSafeZone()){
-          acc += TICK_MS/1000;
+          acc += dt;
         } else {
-          acc -= DRAIN_RATE*(TICK_MS/1000);
+          acc -= drainRate * dt;
         }
-        acc = Math.max(0, Math.min(GOAL_SECONDS, acc));
+        acc = Math.max(0, Math.min(goalSeconds, acc));
         setPbar(acc);
-        if (acc >= GOAL_SECONDS){
+        if (acc >= goalSeconds){
           win();
         }
       }, TICK_MS);
     }
 
     function stopChallenge(){
-      ticking = false; pulseDot(false);
+      if (!ticking && !intervalId) return;
+      ticking = false;
+      pulseDot(false);
       if (intervalId){ clearInterval(intervalId); intervalId = null; }
+      startBtn.disabled = false;
+      driftState = [];
     }
 
     function resetChallenge(){
-      stopChallenge(); acc = 0; setPbar(acc);
-      statusNote.textContent = 'Adjust sliders to enter the safe zone. Leaving the zone slowly drains progress.';
+      if (pendingAutoAdvance){ clearTimeout(pendingAutoAdvance); pendingAutoAdvance = null; }
+      prepareLevel(1);
     }
 
     function win(){
       stopChallenge();
-      statusNote.textContent = '✔ Success! You kept conditions stable for 5 s — reward unlocked!';
+      bestLevel = Math.max(bestLevel, level);
+      bestLabel.textContent = bestLevel;
+      statusNote.textContent = `✔ Level ${level} cleared! The niche tightens.`;
       burstConfetti();
+      pendingAutoAdvance = setTimeout(()=>{
+        prepareLevel(level + 1);
+      }, 1200);
+    }
+
+    function prepareLevel(nextLevel){
+      stopChallenge();
+      acc = 0;
+      level = Math.max(1, nextLevel);
+      safeZone = computeSafeZone(level);
+      goalSeconds = BASE_GOAL_SECONDS + (level-1) * GOAL_INCREMENT;
+      drainRate = Math.min(2.5, BASE_DRAIN_RATE + (level-1) * DRAIN_INCREMENT);
+      setPbar(acc);
+      updateRangeLabels();
+      randomizeSliders();
+      challengeSummary.innerHTML = `Goal: keep sliders inside the <strong>safe self‑renewal zone</strong> for <strong>${goalSeconds.toFixed(1)} seconds</strong>.`;
+      levelLabel.textContent = level;
+      bestLabel.textContent = bestLevel;
+      startBtn.textContent = `Start level ${level}`;
+      statusNote.textContent = `Level ${level} armed. Starting conditions are randomized and drift ${driftMultiplier(level).toFixed(1)}× faster than baseline.`;
+      startBtn.disabled = false;
+    }
+
+    function computeSafeZone(lvl){
+      const shrink = 1 + (lvl-1) * 0.22;
+      const shrinkPass = 1 + (lvl-1) * 0.18;
+      return {
+        o2: rangeFrom(baseSafe.o2.center, baseSafe.o2.half / shrink, sliderSettings.o2),
+        gf: rangeFrom(baseSafe.gf.center, baseSafe.gf.half / shrink, sliderSettings.gf),
+        pass: rangeFrom(baseSafe.pass.center, Math.max(1.2, baseSafe.pass.half / shrinkPass), sliderSettings.pass)
+      };
+    }
+
+    function rangeFrom(center, half, cfg){
+      let min = center - half;
+      let max = center + half;
+      min = clamp(min, cfg.min, cfg.max);
+      max = clamp(max, cfg.min, cfg.max);
+      if (min >= max){ max = Math.min(cfg.max, min + cfg.step); }
+      return {
+        min: snapToStep(min, cfg),
+        max: snapToStep(max, cfg)
+      };
+    }
+
+    function updateRangeLabels(){
+      o2RangeLabel.textContent = `${safeZone.o2.min.toFixed(1)}–${safeZone.o2.max.toFixed(1)}%`;
+      gfRangeLabel.textContent = `${Math.round(safeZone.gf.min)}–${Math.round(safeZone.gf.max)}%`;
+      passRangeLabel.textContent = `P${Math.round(safeZone.pass.min)}–P${Math.round(safeZone.pass.max)}`;
+      const baseWidth = baseSafe.o2.half * 2;
+      const currentWidth = safeZone.o2.max - safeZone.o2.min;
+      const widthPct = Math.round((currentWidth / baseWidth) * 100);
+      const driftScale = driftMultiplier(level).toFixed(1);
+      difficultyNote.textContent = `Level ${level}: safe zone width is ${widthPct}% of the intro level and drift is ${driftScale}× faster.`;
+    }
+
+    function randomizeSliders(){
+      Object.keys(sliderSettings).forEach(key => {
+        const cfg = sliderSettings[key];
+        const safe = safeZone[key];
+        let value = cfg.min;
+        let attempts = 0;
+        do {
+          value = randomBetween(cfg.min, cfg.max);
+          value = clamp(value, cfg.min, cfg.max);
+          value = snapToStep(value, cfg);
+          attempts++;
+        } while (value >= safe.min && value <= safe.max && attempts < 40);
+
+        if (value >= safe.min && value <= safe.max){
+          const step = cfg.step || 1;
+          value = safe.min - step;
+          if (value < cfg.min){
+            value = safe.max + step;
+          }
+          value = clamp(value, cfg.min, cfg.max);
+        }
+        cfg.el.value = value;
+      });
+      update();
+    }
+
+    function snapToStep(value, cfg){
+      const step = cfg.step || 1;
+      const snapped = Math.round(value / step) * step;
+      const fixed = cfg.decimals ? Number(snapped.toFixed(cfg.decimals)) : snapped;
+      return clamp(fixed, cfg.min, cfg.max);
+    }
+
+    function randomBetween(min, max){
+      return Math.random() * (max - min) + min;
+    }
+
+    function driftMultiplier(lvl){
+      return 1 + (lvl-1) * 0.3;
+    }
+
+    function initDrift(){
+      const scale = driftMultiplier(level);
+      driftState = [
+        { key: 'o2', dir: Math.random() < 0.5 ? -1 : 1, speed: driftBase.o2 * scale },
+        { key: 'gf', dir: Math.random() < 0.5 ? -1 : 1, speed: driftBase.gf * scale },
+        { key: 'pass', dir: Math.random() < 0.5 ? -1 : 1, speed: driftBase.pass * scale }
+      ];
+    }
+
+    function applyDrift(dt){
+      if (!driftState.length) return;
+      driftState.forEach(state => {
+        const cfg = sliderSettings[state.key];
+        if (Math.random() < 0.02 + level * 0.005){
+          state.dir *= -1;
+        }
+        const jitter = state.speed * 0.25 * (Math.random() - 0.5);
+        let delta = (state.dir * state.speed + jitter) * dt;
+        let newVal = parseFloat(cfg.el.value) + delta;
+        if (newVal <= cfg.min || newVal >= cfg.max){
+          state.dir *= -1;
+          newVal = clamp(newVal, cfg.min, cfg.max);
+        }
+        cfg.el.value = snapToStep(newVal, cfg);
+      });
+      update();
     }
 
     startBtn.addEventListener('click', startChallenge);
     resetBtn.addEventListener('click', resetChallenge);
+
+    prepareLevel(1);
 
     // Tiny confetti without libraries
     const ctx = confetti.getContext('2d');
