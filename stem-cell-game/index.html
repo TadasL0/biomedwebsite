@@ -153,7 +153,7 @@
             <li>Growth factors: <strong id="gfRangeLabel">30–60%</strong> (not starved, not overdriven)</li>
             <li>Passage: <strong id="passRangeLabel">P1–P6</strong> (early culture)</li>
           </ul>
-          <div class="small" id="difficultyNote">Level 1: baseline safe zone and stable drift.</div>
+          <div class="small" id="difficultyNote">Level 1: baseline drift speed with gentle fluctuations.</div>
           <div class="buttons">
             <button id="startBtn">Start challenge</button>
             <button id="resetBtn">Reset</button>
@@ -372,10 +372,8 @@
     update();
 
     // ---------- Challenge logic ----------
-    const BASE_GOAL_SECONDS = 5.0;  // seconds to survive on level 1
-    const GOAL_INCREMENT = 0.5;     // how much longer each level lasts
-    const BASE_DRAIN_RATE = 0.7;    // progress lost per second while out of zone (level 1)
-    const DRAIN_INCREMENT = 0.18;   // additional drain per level
+    const GOAL_SECONDS = 5.0;       // survival time per level
+    const BASE_DRAIN_RATE = 0.7;    // progress lost per second while out of zone
     const TICK_MS = 100;            // update interval
 
     const sliderSettings = {
@@ -398,9 +396,9 @@
 
     let level = 1;
     let bestLevel = 0;
-    let goalSeconds = BASE_GOAL_SECONDS;
+    let goalSeconds = GOAL_SECONDS;
     let drainRate = BASE_DRAIN_RATE;
-    let safeZone = computeSafeZone(level);
+    let safeZone = computeSafeZone();
     let ticking = false;
     let acc = 0;
     let intervalId = null;
@@ -478,9 +476,9 @@
       stopChallenge();
       acc = 0;
       level = Math.max(1, nextLevel);
-      safeZone = computeSafeZone(level);
-      goalSeconds = BASE_GOAL_SECONDS + (level-1) * GOAL_INCREMENT;
-      drainRate = Math.min(2.5, BASE_DRAIN_RATE + (level-1) * DRAIN_INCREMENT);
+      safeZone = computeSafeZone();
+      goalSeconds = GOAL_SECONDS;
+      drainRate = BASE_DRAIN_RATE;
       setPbar(acc);
       updateRangeLabels();
       randomizeSliders();
@@ -492,13 +490,11 @@
       startBtn.disabled = false;
     }
 
-    function computeSafeZone(lvl){
-      const shrink = 1 + (lvl-1) * 0.22;
-      const shrinkPass = 1 + (lvl-1) * 0.18;
+    function computeSafeZone(){
       return {
-        o2: rangeFrom(baseSafe.o2.center, baseSafe.o2.half / shrink, sliderSettings.o2),
-        gf: rangeFrom(baseSafe.gf.center, baseSafe.gf.half / shrink, sliderSettings.gf),
-        pass: rangeFrom(baseSafe.pass.center, Math.max(1.2, baseSafe.pass.half / shrinkPass), sliderSettings.pass)
+        o2: rangeFrom(baseSafe.o2.center, baseSafe.o2.half, sliderSettings.o2),
+        gf: rangeFrom(baseSafe.gf.center, baseSafe.gf.half, sliderSettings.gf),
+        pass: rangeFrom(baseSafe.pass.center, baseSafe.pass.half, sliderSettings.pass)
       };
     }
 
@@ -518,11 +514,8 @@
       o2RangeLabel.textContent = `${safeZone.o2.min.toFixed(1)}–${safeZone.o2.max.toFixed(1)}%`;
       gfRangeLabel.textContent = `${Math.round(safeZone.gf.min)}–${Math.round(safeZone.gf.max)}%`;
       passRangeLabel.textContent = `P${Math.round(safeZone.pass.min)}–P${Math.round(safeZone.pass.max)}`;
-      const baseWidth = baseSafe.o2.half * 2;
-      const currentWidth = safeZone.o2.max - safeZone.o2.min;
-      const widthPct = Math.round((currentWidth / baseWidth) * 100);
       const driftScale = driftMultiplier(level).toFixed(1);
-      difficultyNote.textContent = `Level ${level}: safe zone width is ${widthPct}% of the intro level and drift is ${driftScale}× faster.`;
+      difficultyNote.textContent = `Level ${level}: expect ${driftScale}× faster drift bursts than the intro level.`;
     }
 
     function randomizeSliders(){
@@ -563,7 +556,7 @@
     }
 
     function driftMultiplier(lvl){
-      return 1 + (lvl-1) * 0.3;
+      return 1 + (lvl-1) * 0.45;
     }
 
     function initDrift(){
@@ -577,14 +570,24 @@
 
     function applyDrift(dt){
       if (!driftState.length) return;
+      const flipBase = 0.07 + (level-1) * 0.035;
+      const burstBase = 0.08 + (level-1) * 0.045;
+      const jitterBase = 0.35 + (level-1) * 0.12;
       driftState.forEach(state => {
         const cfg = sliderSettings[state.key];
-        if (Math.random() < 0.02 + level * 0.005){
+        const flipChance = Math.min(0.5, flipBase);
+        if (Math.random() < flipChance){
           state.dir *= -1;
         }
-        const jitter = state.speed * 0.25 * (Math.random() - 0.5);
+        const jitter = state.speed * jitterBase * (Math.random() - 0.5);
         let delta = (state.dir * state.speed + jitter) * dt;
         let newVal = parseFloat(cfg.el.value) + delta;
+        const burstChance = Math.min(0.35, burstBase);
+        if (Math.random() < burstChance){
+          const burstDir = Math.random() < 0.5 ? -1 : 1;
+          const burstMag = state.speed * (0.8 + Math.random() * 1.5);
+          newVal += burstDir * burstMag;
+        }
         if (newVal <= cfg.min || newVal >= cfg.max){
           state.dir *= -1;
           newVal = clamp(newVal, cfg.min, cfg.max);
