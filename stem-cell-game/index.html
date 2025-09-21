@@ -443,12 +443,16 @@
 
     function win(){
       stopChallenge();
+      const nextLevel = level + 1;
       bestLevel = Math.max(bestLevel, level);
       bestLabel.textContent = bestLevel;
-      statusNote.textContent = `✔ Level ${level} cleared! The niche tightens.`;
+      startBtn.disabled = true;
+      startBtn.classList.remove('glow');
+      const preview = driftMultiplier(nextLevel).toFixed(1);
+      statusNote.textContent = `✔ Level ${level} cleared! Preparing level ${nextLevel} (${preview}× drift volatility)…`;
       burstConfetti();
       pendingAutoAdvance = setTimeout(()=>{
-        prepareLevel(level + 1);
+        prepareLevel(nextLevel);
       }, 1200);
     }
 
