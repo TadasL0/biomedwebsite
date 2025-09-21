@@ -171,23 +171,8 @@
       </div>
     </section>
 
-    <!-- Share via QR -->
-    <section class="card" aria-labelledby="share">
-      <h2 id="share">Share to phones (QR)</h2>
-      <div class="small">Point your camera at the QR to open this page on your phone. If you host it elsewhere, paste the new link below and the QR will update.</div>
-      <div class="row" style="grid-template-columns:1fr auto;align-items:start">
-        <input id="shareLink" type="text" value="" style="width:100%;padding:10px;border-radius:10px;border:1px solid #24457d;background:#0f1b33;color:#e6eefc"/>
-        <button id="copyBtn" title="Copy link">Copy link</button>
-      </div>
-      <div style="display:flex;gap:16px;align-items:center;margin-top:10px">
-        <img id="qrImg" alt="QR code" style="width:140px;height:140px;border-radius:12px;border:1px solid #24457d;background:#0f1b33"/>
-        <div class="small">Tip: show this slide full‑screen. If students can’t open it, make sure you’re all on the same Wi‑Fi or host it on the public internet.</div>
-      </div>
-    </section>
-
-    <footer class="small">
-      Use it live (browser) or drop a link/QR in your slides. Heuristics are illustrative, not clinical.
-    </footer>
+   <!-- Share via QR -->
+    <!-- (Share section removed) -->
   </div>
 
   <canvas id="confetti" class="confetti"></canvas>
@@ -231,77 +216,6 @@
     const introOverlay = document.getElementById('levelIntro');
     const introLevelText = document.getElementById('introLevel');
     const introNoteText = document.getElementById('introNote');
-
-    // Share/QR elements
-    const shareLink = document.getElementById('shareLink');
-    const qrImg = document.getElementById('qrImg');
-    const copyBtn = document.getElementById('copyBtn');
-
-    // ---- Share/QR setup ----
-    const runningLocal = ['localhost','127.0.0.1'].includes(window.location.hostname);
-
-    function setQR(url){
-      if(!url) return;
-      shareLink.value = url;
-
-      const remoteSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=' + encodeURIComponent(url);
-
-      if (runningLocal) {
-        const localSrc = 'share-qr.png?v=' + Date.now();
-        const restoreFallback = () => {
-          qrImg.onerror = null;
-          qrImg.src = remoteSrc;
-        };
-        qrImg.onerror = restoreFallback;
-        qrImg.src = localSrc;
-      } else {
-        qrImg.onerror = null;
-        qrImg.src = remoteSrc;
-      }
-      qrImg.alt = 'QR code for ' + url;
-    }
-
-    (async function initShare(){
-      let initial = '';
-      if (runningLocal) {
-        try {
-          const res = await fetch('share-url.txt?v=' + Date.now());
-          if (res.ok) {
-            initial = (await res.text()).trim();
-          }
-        } catch (err) {
-          console.warn('Share URL fetch failed', err);
-        }
-      }
-      if (!initial) {
-        initial = window.location.href;
-      }
-      setQR(initial);
-    })();
-
-    shareLink.addEventListener('input', () => {
-      const val = shareLink.value.trim();
-      if(!val) return;
-      setQR(val);
-    });
-
-    copyBtn.addEventListener('click', async () => {
-      const val = shareLink.value.trim();
-      if(!val) return;
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(val);
-        } else {
-          shareLink.select();
-          document.execCommand('copy');
-        }
-        copyBtn.textContent = 'Copied!';
-      } catch (err) {
-        console.warn('Copy failed', err);
-        copyBtn.textContent = 'Copy failed';
-      }
-      setTimeout(() => copyBtn.textContent = 'Copy link', 1200);
-    });
 
     [o2,gf,pass].forEach(el=>el.addEventListener('input', update));
 
