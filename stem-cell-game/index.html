@@ -186,6 +186,21 @@
     <div class="grid">
       <section class="card" aria-labelledby="controls">
         <h2 id="controls">Controls</h2>
+        
+        <!-- Progress bar moved to top of controls -->
+        <div style="background:linear-gradient(180deg,#122243,#0f1b33);border:1px solid #254477;border-radius:12px;padding:12px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <h3 style="margin:0;font-size:14px;color:#d7e6ff;display:flex;align-items:center;gap:8px">
+              <span class="dot" id="liveDot"></span>
+              Level Progress
+            </h3>
+            <div class="small" style="color:#bcd0ff">Level <strong id="levelLabel">1</strong></div>
+          </div>
+          <div class="progress" aria-label="challenge progress"><div class="pbar" id="pbar"></div></div>
+          <div class="small" id="ptime" style="margin-top:6px">0.0 / 5.0 s in-zone</div>
+          <div class="small" id="statusNote" style="margin-top:4px;color:var(--muted)">Click "Start Level" below to begin.</div>
+        </div>
+        
         <div class="row">
           <div class="label">Oxygen (O₂)</div>
           <div class="slider-container">
