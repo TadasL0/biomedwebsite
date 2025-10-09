@@ -2,89 +2,175 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Tune the Stem‑Cell Hotel – Interactive</title>
   <style>
     :root{
-      --bg:#0e1726;          /* deep navy */
-      --panel:#141f34;       /* card */
-      --soft:#1b2a46;        /* accents */
-      --text:#e6eefc;        /* main text */
-      --muted:#a9b7d9;       /* secondary */
-      --ok:#6ee7b7;          /* green */
-      --warn:#fbbf24;        /* amber */
-      --bad:#f87171;         /* red */
-      --brand:#8ab4ff;       /* blue */
+      --bg:#0e1726;
+      --panel:#141f34;
+      --soft:#1b2a46;
+      --text:#e6eefc;
+      --muted:#a9b7d9;
+      --ok:#6ee7b7;
+      --warn:#fbbf24;
+      --bad:#f87171;
+      --brand:#8ab4ff;
     }
     html,body{height:100%}
     body{
       margin:0; font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
       color:var(--text); background: radial-gradient(1200px 900px at 70% -10%, #173055 0%, var(--bg) 45%) no-repeat var(--bg);
+      -webkit-tap-highlight-color: transparent;
     }
-    .wrap{max-width:1100px;margin:0 auto;padding:32px}
-    header{display:flex;gap:18px;align-items:center;margin-bottom:20px}
-    .logo{width:54px;height:54px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(165deg,#1e2f52,#0f1a30);box-shadow:0 10px 30px rgba(0,0,0,.25)}
-    .logo svg{width:30px;height:30px;opacity:.95}
-    h1{font-weight:800;font-size:clamp(26px,4vw,40px);letter-spacing:.3px;margin:0}
-    .sub{color:var(--muted);margin-top:4px}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    @media (min-width:768px){.wrap{padding:32px}}
+    header{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+    @media (min-width:768px){header{gap:18px;margin-bottom:20px}}
+    .logo{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(165deg,#1e2f52,#0f1a30);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    @media (min-width:768px){.logo{width:54px;height:54px;border-radius:16px}}
+    .logo svg{width:26px;height:26px;opacity:.95}
+    @media (min-width:768px){.logo svg{width:30px;height:30px}}
+    h1{font-weight:800;font-size:clamp(22px,5vw,40px);letter-spacing:.3px;margin:0;line-height:1.2}
+    .sub{color:var(--muted);margin-top:4px;font-size:14px}
+    @media (min-width:768px){.sub{font-size:16px}}
 
-    .grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:22px;align-items:start}
-    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px;align-items:start}
+    @media (min-width:900px){.grid{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:22px}}
 
-    .card{background:linear-gradient(180deg,var(--panel),#0f1a2b);border:1px solid #1e335a;box-shadow:0 10px 40px rgba(0,0,0,.35);border-radius:18px;padding:18px 18px 16px}
-    .card h2{margin:4px 0 10px;font-size:18px;letter-spacing:.3px;color:#cfe0ff}
-    .row{display:grid;grid-template-columns:160px 1fr 72px;align-items:center;gap:12px;margin:14px 0}
-    .label{font-weight:700;color:#d7e6ff}
-    input[type=range]{width:100%}
-    .val{font-variant-numeric:tabular-nums; color:#bcd0ff}
+    .card{background:linear-gradient(180deg,var(--panel),#0f1a2b);border:1px solid #1e335a;box-shadow:0 10px 40px rgba(0,0,0,.35);border-radius:16px;padding:16px}
+    @media (min-width:768px){.card{border-radius:18px;padding:18px}}
+    .card h2{margin:4px 0 12px;font-size:17px;letter-spacing:.3px;color:#cfe0ff}
+    @media (min-width:768px){.card h2{font-size:18px;margin-bottom:10px}}
+    
+    .row{display:grid;grid-template-columns:1fr;gap:8px;margin:16px 0}
+    @media (min-width:640px){.row{grid-template-columns:140px 1fr auto;align-items:center;gap:12px;margin:14px 0}}
+    
+    .label{font-weight:700;color:#d7e6ff;font-size:15px}
+    @media (min-width:768px){.label{font-size:16px}}
+    
+    .slider-container{display:flex;align-items:center;gap:12px}
+    
+    /* MUCH BIGGER SLIDERS FOR MOBILE */
+    input[type=range]{
+      width:100%;
+      height:44px;
+      -webkit-appearance:none;
+      appearance:none;
+      background:transparent;
+      cursor:pointer;
+    }
+    input[type=range]::-webkit-slider-track{
+      height:12px;
+      background:linear-gradient(180deg,#0d1830,#152340);
+      border-radius:999px;
+      border:1px solid #1e325a;
+    }
+    input[type=range]::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      appearance:none;
+      width:36px;
+      height:36px;
+      border-radius:50%;
+      background:linear-gradient(165deg,#3b82f6,#1e40af);
+      border:3px solid #0f1a2b;
+      box-shadow:0 4px 12px rgba(59,130,246,.4);
+      margin-top:-12px;
+      cursor:grab;
+    }
+    input[type=range]:active::-webkit-slider-thumb{
+      cursor:grabbing;
+      box-shadow:0 6px 20px rgba(59,130,246,.6);
+    }
+    input[type=range]::-moz-range-track{
+      height:12px;
+      background:linear-gradient(180deg,#0d1830,#152340);
+      border-radius:999px;
+      border:1px solid #1e325a;
+    }
+    input[type=range]::-moz-range-thumb{
+      width:36px;
+      height:36px;
+      border-radius:50%;
+      background:linear-gradient(165deg,#3b82f6,#1e40af);
+      border:3px solid #0f1a2b;
+      box-shadow:0 4px 12px rgba(59,130,246,.4);
+      cursor:grab;
+    }
+    input[type=range]:active::-moz-range-thumb{
+      cursor:grabbing;
+      box-shadow:0 6px 20px rgba(59,130,246,.6);
+    }
+    
+    .val{
+      font-variant-numeric:tabular-nums;
+      color:#bcd0ff;
+      font-weight:700;
+      font-size:16px;
+      min-width:52px;
+      text-align:right;
+      display:inline-block;
+    }
+    @media (min-width:640px){.val{font-size:15px;min-width:60px}}
 
     .pill{display:inline-grid;grid-auto-flow:column;gap:10px;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid #274679;background:linear-gradient(180deg,#14233f,#0f1b33);color:#cfe0ff;font-weight:600}
     .pill kbd{font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace;padding:2px 6px;border-radius:6px;background:#0c162a;border:1px solid #223b6d;color:#9ac0ff}
 
     .outcome{display:grid;gap:14px}
-    .badge{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;font-weight:800;letter-spacing:.3px;width:max-content}
-    .badge svg{width:18px;height:18px}
+    .badge{display:inline-flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;font-weight:800;letter-spacing:.3px;width:max-content;font-size:14px}
+    @media (min-width:768px){.badge{font-size:15px}}
+    .badge svg{width:18px;height:18px;flex-shrink:0}
 
     .ok{background:rgba(110,231,183,.12);border:1px solid rgba(110,231,183,.6);color:var(--ok)}
     .warn{background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.6);color:var(--warn)}
     .bad{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.6);color:var(--bad)}
 
-    .explain{color:var(--muted);line-height:1.6}
+    .explain{color:var(--muted);line-height:1.6;font-size:14px}
+    @media (min-width:768px){.explain{font-size:15px}}
     .meter{height:10px;border-radius:999px;background:#0d1830;border:1px solid #1e325a;overflow:hidden}
     .bar{height:100%;background:linear-gradient(90deg,#1e40af,#60a5fa);width:0%}
 
-    .buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-    button{cursor:pointer;border:1px solid #24457d;background:linear-gradient(180deg,#152748,#101c36);color:#d6e4ff;padding:10px 14px;border-radius:12px;font-weight:700}
+    .buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    button{cursor:pointer;border:1px solid #24457d;background:linear-gradient(180deg,#152748,#101c36);color:#d6e4ff;padding:12px 18px;border-radius:12px;font-weight:700;font-size:15px;touch-action:manipulation;min-height:48px}
     button:hover{filter:brightness(1.1)}
+    button:active{transform:scale(0.98)}
     button.glow{box-shadow:0 0 18px rgba(138,180,255,.6);animation:glimmer 1.6s ease-in-out infinite}
     @keyframes glimmer{0%,100%{box-shadow:0 0 12px rgba(138,180,255,.5)}50%{box-shadow:0 0 22px rgba(110,231,183,.8)}}
+    
     #levelIntro{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transform:scale(.94);transition:opacity .4s ease,transform .5s ease;color:var(--text);z-index:40}
     #levelIntro.active{opacity:1;transform:scale(1)}
-    #levelIntro .intro-bubble{background:rgba(20,31,52,.85);border:1px solid rgba(138,180,255,.5);border-radius:26px;padding:24px 32px;box-shadow:0 25px 60px rgba(6,12,26,.55);display:flex;align-items:center;gap:18px}
-    #levelIntro .cell{font-size:2.2rem;animation:float 1.8s ease-in-out infinite;filter:drop-shadow(0 8px 18px rgba(138,180,255,.4))}
-    #levelIntro .intro-text span{display:block;font-size:1.7rem;font-weight:800}
-    #levelIntro .intro-text small{display:block;font-size:0.95rem;color:var(--muted);margin-top:4px}
+    #levelIntro .intro-bubble{background:rgba(20,31,52,.95);border:1px solid rgba(138,180,255,.5);border-radius:20px;padding:20px 28px;box-shadow:0 25px 60px rgba(6,12,26,.55);display:flex;align-items:center;gap:16px;margin:0 16px}
+    @media (min-width:768px){#levelIntro .intro-bubble{border-radius:26px;padding:24px 32px;gap:18px}}
+    #levelIntro .cell{font-size:2rem;animation:float 1.8s ease-in-out infinite;filter:drop-shadow(0 8px 18px rgba(138,180,255,.4))}
+    @media (min-width:768px){#levelIntro .cell{font-size:2.2rem}}
+    #levelIntro .intro-text span{display:block;font-size:1.4rem;font-weight:800}
+    @media (min-width:768px){#levelIntro .intro-text span{font-size:1.7rem}}
+    #levelIntro .intro-text small{display:block;font-size:0.9rem;color:var(--muted);margin-top:4px}
+    @media (min-width:768px){#levelIntro .intro-text small{font-size:0.95rem}}
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
     footer{margin-top:22px;color:#9bb4e8}
-    .small{font-size:12px;color:#8aa7de}
+    .small{font-size:13px;color:#8aa7de}
     a{color:var(--brand)}
-      .help{font-size:13px;color:var(--muted);margin:-6px 0 8px 0}
-    .challenge-head{display:flex;align-items:center;gap:10px}
-    .challenge-head .dot{width:10px;height:10px;border-radius:999px;background:var(--warn);box-shadow:0 0 12px rgba(251,191,36,.6)}
-    .challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
-    .goal{background:linear-gradient(180deg,#122243,#0f1b33);border:1px solid #254477;border-radius:12px;padding:10px}
-    .goal h3{margin:0 0 6px 0;font-size:14px;color:#d7e6ff}
-    .progress{height:12px;border-radius:999px;background:#0d1830;border:1px solid #1e325a;overflow:hidden}
+    .help{font-size:13px;color:var(--muted);margin:-6px 0 12px 0;line-height:1.5}
+    @media (min-width:768px){.help{margin:-6px 0 8px 0}}
+    
+    .challenge-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .challenge-head .dot{width:10px;height:10px;border-radius:999px;background:var(--warn);box-shadow:0 0 12px rgba(251,191,36,.6);flex-shrink:0}
+    .challenge-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:12px}
+    @media (min-width:768px){.challenge-grid{grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}}
+    .goal{background:linear-gradient(180deg,#122243,#0f1b33);border:1px solid #254477;border-radius:12px;padding:12px}
+    .goal h3{margin:0 0 8px 0;font-size:14px;color:#d7e6ff}
+    .goal ul{margin:8px 0;padding-left:20px}
+    .goal ul li{margin:4px 0}
+    .progress{height:14px;border-radius:999px;background:#0d1830;border:1px solid #1e325a;overflow:hidden}
     .progress .pbar{height:100%;width:0%;background:linear-gradient(90deg,#34d399,#60a5fa)}
-    .confetti{position:fixed;inset:0;pointer-events:none}
+    .confetti{position:fixed;inset:0;pointer-events:none;z-index:30}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <div class="logo" aria-hidden="true">
-        <!-- Simple cell-ish logo -->
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="12" cy="12" r="10" stroke="#86b3ff" stroke-width="1.8"/>
           <circle cx="12" cy="12" r="4.5" stroke="#86b3ff" stroke-width="1.8"/>
@@ -102,22 +188,30 @@
         <h2 id="controls">Controls</h2>
         <div class="row">
           <div class="label">Oxygen (O₂)</div>
-          <input id="o2" type="range" min="0.5" max="21" value="5" step="0.1" aria-label="oxygen percentage" />
-          <div class="val"><span id="o2Val">5.0</span>%</div>
+          <div class="slider-container">
+            <input id="o2" type="range" min="0.5" max="21" value="5" step="0.1" aria-label="oxygen percentage" />
+            <div class="val"><span id="o2Val">5.0</span>%</div>
+          </div>
         </div>
-        <div class="help">Most stem cells prefer <strong>low oxygen</strong> (about <strong>2–8%</strong>) — the physiologic “sweet spot.”</div>
+        <div class="help">Most stem cells prefer <strong>low oxygen</strong> (about <strong>2–8%</strong>) — the physiologic "sweet spot."</div>
+        
         <div class="row">
           <div class="label">Growth factors dose</div>
-          <input id="gf" type="range" min="0" max="100" value="45" step="1" aria-label="growth factor dose" />
-          <div class="val"><span id="gfVal">45</span>%</div>
+          <div class="slider-container">
+            <input id="gf" type="range" min="0" max="100" value="45" step="1" aria-label="growth factor dose" />
+            <div class="val"><span id="gfVal">45</span>%</div>
+          </div>
         </div>
-        <div class="help"><strong>Growth factors</strong> are the “go” signals — moderate dosing keeps expansion under control.</div>
+        <div class="help"><strong>Growth factors</strong> are the "go" signals — moderate dosing keeps expansion under control.</div>
+        
         <div class="row">
           <div class="label">Passage number</div>
-          <input id="pass" type="range" min="1" max="20" value="5" step="1" aria-label="passage number" />
-          <div class="val">P<span id="passVal">5</span></div>
+          <div class="slider-container">
+            <input id="pass" type="range" min="1" max="20" value="5" step="1" aria-label="passage number" />
+            <div class="val">P<span id="passVal">5</span></div>
+          </div>
         </div>
-        <div class="help"><strong>Passage</strong> counts how often we’ve split the culture — later passages edge toward <em>Hayflick’s limit</em> and instability.</div>
+        <div class="help"><strong>Passage</strong> counts how often we've split the culture — later passages edge toward <em>Hayflick's limit</em> and instability.</div>
 
         <div class="help" role="note" aria-live="polite">Tip: 2–8% O₂ · moderate GF · early passage tends to keep the niche stable.</div>
       </section>
@@ -138,7 +232,6 @@
       </section>
     </div>
 
-    <!-- Challenge card -->
     <section class="card" aria-labelledby="challenge">
       <h2 id="challenge">Challenge: Niche Survival Levels</h2>
       <div class="challenge-head">
@@ -152,7 +245,7 @@
         <div class="goal">
           <h3>Target ranges (non‑technical)</h3>
           <ul class="small">
-            <li>O₂: <strong id="o2RangeLabel">2–8%</strong> (healthy “low‑oxygen” zone)</li>
+            <li>O₂: <strong id="o2RangeLabel">2–8%</strong> (healthy "low‑oxygen" zone)</li>
             <li>Growth factors: <strong id="gfRangeLabel">30–60%</strong> (not starved, not overdriven)</li>
             <li>Passage: <strong id="passRangeLabel">P1–P6</strong> (early culture)</li>
           </ul>
@@ -170,9 +263,6 @@
         </div>
       </div>
     </section>
-
-   <!-- Share via QR -->
-    <!-- (Share section removed) -->
   </div>
 
   <canvas id="confetti" class="confetti"></canvas>
@@ -198,7 +288,6 @@
     const explain = document.getElementById('explain');
     const riskBar = document.getElementById('riskBar');
 
-    // Challenge elements
     const startBtn = document.getElementById('startBtn');
     const resetBtn = document.getElementById('resetBtn');
     const pbar = document.getElementById('pbar');
@@ -230,24 +319,18 @@
             g = +gf.value,
             p = +pass.value;
 
-      // Heuristic scoring (illustrative):
-      // base risk from culture age
       let risk = 0;
-      risk += (p-1) * 3; // later passages accumulate risk
+      risk += (p-1) * 3;
 
-      // oxygen outside physiologic hypoxia (2–8%) adds risk
-      if (o < 2) risk += (2 - o) * 10; // too low
-      if (o > 8) risk += (o - 8) * 3;   // too high
+      if (o < 2) risk += (2 - o) * 10;
+      if (o > 8) risk += (o - 8) * 3;
 
-      // very high growth factor drive, especially at late passage, raises risk
       if (g > 70) risk += (g - 70) * (p >= 8 ? 2.4 : 1.4);
-      if (g < 15) risk += (15 - g) * 2; // too little signaling → quiescence/senescence tendency
+      if (g < 15) risk += (15 - g) * 2;
 
-      // Bound and map risk to 0–100
       risk = clamp(risk, 0, 100);
       riskBar.style.width = risk + '%';
 
-      // Determine qualitative outcome buckets
       const inSweetO2 = (o >= 2 && o <= 8);
       const early = p <= 6;
 
@@ -257,7 +340,7 @@
         state = 'No division / senescence';
         tone = 'warn';
         msg = 'No division / senescence';
-        note = "Very late passage or starved signals push cells toward Hayflick’s limit and quiescence.";
+        note = "Very late passage or starved signals push cells toward Hayflick's limit and quiescence.";
       } else if ((g >= 80 && p >= 8) || (g >= 90) || (o < 1.2 && g >= 60)){
         state = 'Cancer / overgrowth risk';
         tone = 'bad';
@@ -282,10 +365,10 @@
 
     update();
 
-    // ---------- Challenge logic ----------
-    const GOAL_SECONDS = 5.0;       // survival time per level
-    const BASE_DRAIN_RATE = 0.55;   // progress lost per second while out of zone (easier level 1)
-    const TICK_MS = 100;            // update interval
+    // EASIER LEVELS - reduced drift and drain rates
+    const GOAL_SECONDS = 5.0;
+    const BASE_DRAIN_RATE = 0.35;  // Was 0.55, now much more forgiving
+    const TICK_MS = 100;
 
     const sliderSettings = {
       o2: { el: o2, min: parseFloat(o2.min), max: parseFloat(o2.max), step: parseFloat(o2.step), unit: '%', decimals: 1 },
@@ -296,13 +379,14 @@
     const baseSafe = {
       o2: { center: 5, half: 3 },
       gf: { center: 45, half: 15 },
-      pass: { center: 3.5, half: 2.5 }
+      pass: { center: 4, half: 3 }
     };
 
+    // REDUCED DRIFT SPEEDS - much easier to control
     const driftBase = {
-      o2: 0.6,
-      gf: 5,
-      pass: 1.2
+      o2: 0.35,    // Was 0.6
+      gf: 3,       // Was 5
+      pass: 0.65   // Was 1.2
     };
 
     let introTimer = null;
@@ -319,9 +403,16 @@
 
     function inSafeZone(){
       const o = +o2.value, g = +gf.value, p = +pass.value;
-      return (o >= safeZone.o2.min && o <= safeZone.o2.max) &&
+      const inZone = (o >= safeZone.o2.min && o <= safeZone.o2.max) &&
              (g >= safeZone.gf.min && g <= safeZone.gf.max) &&
              (p >= safeZone.pass.min && p <= safeZone.pass.max);
+      
+      // Visual feedback - update dot color in real-time
+      if (ticking) {
+        pulseDot(inZone);
+      }
+      
+      return inZone;
     }
 
     function setPbar(sec){
@@ -347,7 +438,7 @@
       if (ticking) return;
       clearTransition();
       ticking = true;
-      pulseDot(true);
+      pulseDot(false);
       startBtn.disabled = true;
       startBtn.classList.remove('glow');
       statusNote.textContent = `Level ${level} running… stabilize conditions for ${goalSeconds.toFixed(1)} seconds.`;
@@ -355,10 +446,17 @@
       intervalId = setInterval(()=>{
         const dt = TICK_MS/1000;
         applyDrift(dt);
-        if (inSafeZone()){
+        const isInZone = inSafeZone();
+        if (isInZone){
           acc += dt;
+          if (acc === dt) { // Just entered zone
+            statusNote.textContent = `✓ In safe zone! Keep it stable for ${goalSeconds.toFixed(1)}s total.`;
+          }
         } else {
-          acc -= drainRate * dt;
+          if (acc > 0) {
+            acc -= drainRate * dt;
+            statusNote.textContent = `⚠ Out of zone - progress draining! Get back in range.`;
+          }
         }
         acc = Math.max(0, Math.min(goalSeconds, acc));
         setPbar(acc);
@@ -514,8 +612,9 @@
       return Math.random() * (max - min) + min;
     }
 
+    // EASIER PROGRESSION - slower multiplier increase
     function driftMultiplier(lvl){
-      return 1 + (lvl-1) * 0.45;
+      return 1 + (lvl-1) * 0.30;  // Was 0.45, now increases more slowly
     }
 
     function initDrift(){
@@ -529,22 +628,24 @@
 
     function applyDrift(dt){
       if (!driftState.length) return;
-      const flipBase = 0.05 + (level-1) * 0.035;
-      const burstBase = 0.06 + (level-1) * 0.045;
-      const jitterBase = 0.25 + (level-1) * 0.12;
+      // REDUCED chaos factors for easier gameplay
+      const flipBase = 0.03 + (level-1) * 0.02;    // Was 0.05 + 0.035
+      const burstBase = 0.04 + (level-1) * 0.025;  // Was 0.06 + 0.045
+      const jitterBase = 0.18 + (level-1) * 0.08;  // Was 0.25 + 0.12
+      
       driftState.forEach(state => {
         const cfg = sliderSettings[state.key];
-        const flipChance = Math.min(0.5, flipBase);
+        const flipChance = Math.min(0.4, flipBase);
         if (Math.random() < flipChance){
           state.dir *= -1;
         }
         const jitter = state.speed * jitterBase * (Math.random() - 0.5);
         let delta = (state.dir * state.speed + jitter) * dt;
         let newVal = parseFloat(cfg.el.value) + delta;
-        const burstChance = Math.min(0.35, burstBase);
+        const burstChance = Math.min(0.25, burstBase);
         if (Math.random() < burstChance){
           const burstDir = Math.random() < 0.5 ? -1 : 1;
-          const burstMag = state.speed * (0.8 + Math.random() * 1.5);
+          const burstMag = state.speed * (0.6 + Math.random() * 1.2);  // Reduced burst magnitude
           newVal += burstDir * burstMag;
         }
         if (newVal <= cfg.min || newVal >= cfg.max){
@@ -561,7 +662,7 @@
 
     prepareLevel(1);
 
-    // Tiny confetti without libraries
+    // Confetti animation
     const ctx = confetti ? confetti.getContext('2d') : null;
     let flakes = [];
     let confettiFrame = null;
@@ -582,7 +683,7 @@
         flakes.forEach(f=>{
           ctx.fillStyle = f.c;
           ctx.fillRect(f.x, f.y, f.s, f.s);
-          f.x += f.vx; f.y += f.vy; f.vy += 0.02; // gravity
+          f.x += f.vx; f.y += f.vy; f.vy += 0.02;
           if (f.y > innerHeight + 20) f.y = -20;
         });
         if (t++ < 220){
